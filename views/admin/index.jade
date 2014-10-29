@@ -1,0 +1,10 @@
+
+extends layout
+
+block content
+  h1 hello, admin!
+  ul
+    for collection in config.collections
+      li
+        a(href="/admin/list/" + collection.name)= collection.model
+

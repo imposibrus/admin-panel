@@ -1,0 +1,23 @@
+{
+  "name": "admin-panel",
+  "version": "0.0.0",
+  "authors": [
+    "imposibrus <imposibrus@gmail.com>"
+  ],
+  "main": "bin/www",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.0"
+  }
+}

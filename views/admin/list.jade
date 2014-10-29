@@ -1,0 +1,17 @@
+extends layout
+
+block content
+   table.table
+      thead
+         tr
+            for field in modelConfig.list
+               th= field.label
+      tbody
+         for item in collection
+            tr
+               for field in modelConfig.list
+                  if field.field
+                     td= item[field.field]
+                  else if field.value
+                     td!= field.value.call(item)
+
