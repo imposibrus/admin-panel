@@ -4,14 +4,26 @@ block content
    table.table
       thead
          tr
-            for field in modelConfig.list
+            for field in modelConfig.list.fields
                th= field.label
+            if modelConfig.list.fieldActions.length
+               th Actions
       tbody
          for item in collection
             tr
-               for field in modelConfig.list
+               for field in modelConfig.list.fields
                   if field.field
                      td= item[field.field]
                   else if field.value
                      td!= field.value.call(item)
+               if modelConfig.list.fieldActions.length
+                  td
+                     for action in modelConfig.list.fieldActions
+                        | &nbsp;
+                        if action.html
+                           != action.html.call(item)
+                        else if action.type == 'link'
+                           a(href=action.href.call(item), target=action.target, class=action.classes)= action.text
 
+   for listAction in modelConfig.list.listActions
+      != listAction.html

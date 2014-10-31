@@ -22,11 +22,26 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         }
+      },
+      stylus: {
+        files: ['public/css/*.styl'],
+        tasks: 'stylus:compile'
       }/*,*/
       //clientjade: {
       //  files: ['views/*.jade', 'views/**/*.jade'],
       //  tasks: 'clientjade:compile'
       //}
+    },
+    stylus: {
+      compile: {
+        options: {
+          compress: false
+        },
+        files: {
+          'public/css/main.css': ['public/css/main.styl'],
+          'public/css/admin.css': ['public/css/admin.styl']
+        }
+      }
     }/*,
     clientjade: {
       compile: {

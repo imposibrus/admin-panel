@@ -1,0 +1,46 @@
+
+.dragging {
+  .form-group {
+    opacity .2
+    position: relative;
+  }
+  .drop_zone {
+    background: #eeefee;
+    border: 2px dashed gray;
+    box-shadow: 0 0 5px gray;
+    border-radius: 4px;
+    opacity: 1
+    &.hover {
+      background: #ded;
+      border: 2px solid #333;
+    }
+  }
+}
+
+.upload_btn {
+  position: relative;
+  overflow: hidden;
+  input[type="file"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    height:100%;
+    margin: 0;
+
+    opacity: 0;
+    -ms-filter: 'alpha(opacity=0)';
+    font-size: 200px;
+    direction: ltr;
+    cursor: pointer;
+  }
+}
+
+.items_list {
+  td {
+    img {
+      max-width: 300px
+      max-height: 300px
+    }
+  }
+}

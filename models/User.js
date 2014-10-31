@@ -13,7 +13,10 @@ var usersSchema = new Schema({
     required: true
   },
   photos: {
-    preview: String,
+    preview: {
+      50: String,
+      100: String
+    },
     original: String
   }
 });
