@@ -7,17 +7,19 @@ mixin control()
    else if attributes.type == 'checkbox'
       +checkbox()(name=attributes.name, value!=attributes.value, id=attributes.id, caption!=attributes.caption, required=attributes.required, default=attributes.default)
    else if attributes.type == 'image'
+      - var value = attributes.item && attributes.item[attributes.name] ? attributes.item[attributes.name][attributes.field.originalField] : '';
       input(
          class!=attributes.class + ' image_field',
          name=attributes.name,
-         value!=attributes.item[attributes.name][attributes.field.originalField],
+         value!=value,
          id=attributes.id,
          type='file',
          required=attributes.required,
          data-settings=attributes.field
        )
       if attributes.field.preview.field && attributes.field.preview.sizes.length
-         img(src=attributes.item[attributes.name][attributes.field.preview.field][attributes.field.preview.sizes[0].field])
+         - var src = attributes.item && attributes.item[attributes.name] ? attributes.item[attributes.name][attributes.field.preview.field][attributes.field.preview.sizes[0].field] : '';
+         img(src=src)
    else
       +input()(class!=attributes.class, name=attributes.name, value!=attributes.value, id=attributes.id, type=attributes.type, required=attributes.required)
 
@@ -36,7 +38,7 @@ mixin checkbox()
 
 extends layout
 block content
-   form(action="/admin/edit/" + modelConfig.name + "/" + item.id, method="POST", data-collection=modelConfig.name).form-horizontal.admin_form
+   form(action="/admin/edit/" + modelConfig.name + "/" + (item && item.id ? item.id : 'new'), method="POST", data-collection=modelConfig.name).form-horizontal.admin_form
       for field, fieldName in modelConfig.fields
          div.form-group
             - var fieldId = modelConfig.name + '_' + fieldName;
@@ -47,7 +49,7 @@ block content
                   field=field,
                   class="form-control",
                   name=fieldName,
-                  value=item[fieldName],
+                  value=(item && item[fieldName] ? item[fieldName] : ''),
                   type=field.type,
                   id=fieldId,
                   caption=(field.label || field.name),

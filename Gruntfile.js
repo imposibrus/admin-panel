@@ -59,6 +59,6 @@ module.exports = function(grunt) {
 
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
   //grunt.loadNpmTasks('clientjade');
-  grunt.registerTask('default', ['watch']);
+  grunt.registerTask('default', ['stylus', 'watch']);
 
 };

@@ -51,7 +51,13 @@ module.exports = {
           },
           {
             label: 'Картинка!',
-            value: function() {return '<img src="'+ this.photos.original +'" width="100px">';}
+            value: function() {
+              if(this.photos.original) {
+                return '<img src="'+ this.photos.original +'" width="100px">';
+              } else {
+                return 'no image';
+              }
+            }
           }
         ],
         fieldActions: [

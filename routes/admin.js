@@ -38,6 +38,33 @@ router.get('/edit/:collection/:id', function(req, res) {
     });
 });
 
+router.post('/edit/:collection/:id', function(req, res) {
+    var collection = req.params.collection,
+        id = req.params.id,
+        modelConfig = _.find(adminConfig.collections, {name: collection});
+
+    if(id == 'new') {
+        new models[modelConfig.model](req.body).save(function(err) {
+            if(err) {
+                return res.send({status: 500, err: err}, 500);
+            }
+            res.redirect('/admin/list/' + collection);
+        });
+    } else {
+        models[modelConfig.model].findById(id).exec(function(err, item) {
+            if(err) {
+                return res.send({status: 500, err: err}, 500);
+            }
+            item = _.extend(item, req.body);
+            item.save(function(err) {
+                if(err) {
+                    return res.send({status: 500, err: err}, 500);
+                }
+                res.redirect('/admin/list/' + collection);
+            });
+        });
+    }
+});
 
 var formidable = require('formidable'),
     mkdirp = require('mkdirp'),
