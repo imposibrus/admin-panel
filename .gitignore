@@ -3,3 +3,5 @@ node_modules
 .idea
 public/bower_components
 public/storage
+public/css/admin.css
+

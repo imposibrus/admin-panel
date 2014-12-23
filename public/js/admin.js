@@ -34,6 +34,19 @@ $(function() {
         $form_group = $this.closest('.form-group'),
         $text_input = $this.clone();
 
+    $text_input.popover({
+      html: true,
+      placement: 'top',
+      trigger: 'hover',
+      content: function() {
+        var val = $(this).val();
+        if(val) {
+          return '<div class="popover_image"><img src="'+ val +'"></div>';
+        } else {
+          return false;
+        }
+      }
+    });
     $this.wrap('<div class="input-group"></div>');
     $this.before($text_input.attr('type', 'text'))
         .removeAttr('id')
@@ -98,7 +111,7 @@ var sendFiles = function(files, options, callback) {
           fd = new FormData(),
           urlQuery = {
             folder: collection,
-            previews: options.preview.sizes
+            settings: options
           },
           url = '/admin/upload?' + $.param(urlQuery);
 

@@ -65,7 +65,7 @@ module.exports = {
             type: 'link',
             text: 'Edit',
             classes: 'btn btn-default',
-            target: '_blank',
+            //target: '_blank',
             href: function() {return '/admin/edit/users/' + this.id;}
           },
           {
@@ -74,7 +74,7 @@ module.exports = {
         ],
         listActions: [
           {
-            html: '<a href="/admin/edit/users/new" class="btn btn-success" target="_blank">Add new</a>'
+            html: '<a href="/admin/edit/users/new" class="btn btn-success">Add new</a>'
           }
         ]
       }
