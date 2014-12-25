@@ -1,0 +1,6 @@
+
+div.form-group
+  label(for=field.id, class="col-sm-2 control-label")= field.label
+  .col-sm-10
+    input(type=(field.type || 'text'), name=field.name, value!=field.value, id=field.id, class!=field.class, required=field.required)
+

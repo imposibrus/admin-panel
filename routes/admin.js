@@ -3,7 +3,15 @@ var express = require('express'),
     router = express.Router(),
     adminConfig = require('../admin-config'),
     models = require('../models'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    formidable = require('formidable'),
+    mkdirp = require('mkdirp'),
+    fs = require('fs'),
+    path = require('path'),
+    Q = require('q');
+
+
+Q.longStackSupport = true;
 
 //new models.User({
 //    name: 'more users!',
@@ -25,17 +33,115 @@ router.get('/list/:collection', function(req, res) {
     });
 });
 
-router.get('/edit/:collection/:id', function(req, res) {
+/**
+ * Populate Mongoose document by given paths
+ * @param {object} document - Mongoose document
+ * @param {(string|string[])} populate - String or Array of Strings to populate
+ * @returns {Q.promise}
+ */
+var populateItem = function populateItem(document, populate) {
+    var populationDefer = Q.defer();
+    if(!_.isEmpty(document) && !_.isEmpty(populate)) {
+        document.populate(populate, function(err, populatedItem) {
+            if(err) {
+                return populationDefer.reject(err);
+            }
+            populationDefer.resolve(populatedItem);
+        });
+    } else {
+        populationDefer.resolve(document);
+    }
+    return populationDefer.promise;
+};
+
+/**
+ * Check if any of fields has options
+ * property type of function and calculate it
+ * @param {object} modelConfig - config object
+ * @returns {Q.promise}
+ */
+var calcOptions = function calcOptions(modelConfig) {
+    var optionsPromises = [];
+    _.each(modelConfig.fields, function(field) {
+        if(field.options && typeof field.options == 'function') {
+            var optionDefer = Q.defer();
+            field.options(function(err, options) {
+                if(err) {
+                    return optionDefer.reject(err);
+                }
+                field.options = options;
+                optionDefer.resolve();
+            });
+            optionsPromises.push(optionDefer.promise);
+        }
+    });
+    return Q.all(optionsPromises);
+};
+
+var controlsFolder = path.resolve(__dirname, '..', 'views', 'admin', 'controls');
+
+var renderControls = function renderControls(res, modelConfig, document) {
+    var renderPromises = [];
+    _.each(modelConfig.fields, function(field, fieldName) {
+        var defer = Q.defer();
+        field.id = modelConfig.name + '_' + fieldName;
+        field.class = _.compact(['form-control', field.class]).join(' ');
+        field.name = fieldName;
+        field.caption = field.label || field.name;
+        field.value = document ? document[fieldName] : '';
+        (require(path.join(controlsFolder, '_default')))(res, field, document, function(err, html) {
+            if(err) {
+                return defer.reject(err);
+            }
+            defer.resolve(html);
+        });
+        renderPromises.push(defer.promise);
+    });
+    return Q.all(renderPromises);
+};
+
+var getDocumentById = function(id, modelConfig) {
+    var defer = Q.defer();
+    if(id == 'new') {
+        defer.resolve({});
+    } else {
+        models[modelConfig.model].findById(id).exec(function(err, document) {
+            if(err) {
+                return defer.reject(err);
+            }
+            defer.resolve(document);
+        });
+    }
+    return defer.promise;
+};
+
+router.get('/edit/:collection/:id', function(req, res, next) {
     var collection = req.params.collection,
         id = req.params.id,
         modelConfig = _.find(adminConfig.collections, {name: collection});
 
-    models[modelConfig.model].findById(id).exec(function(err, item) {
-        res.render('admin/edit', {
-            modelConfig: modelConfig,
-            item: item
+    getDocumentById(id, modelConfig)
+        .then(function(document) {
+            return populateItem(document, modelConfig.populate)
+                .then(function(populatedDocument) {
+                    return calcOptions(modelConfig).then(function() {
+                        return [
+                            renderControls(res, modelConfig, populatedDocument),
+                            populatedDocument
+                        ];
+                    });
+                });
+        })
+        .spread(function(controlsHTML, populatedDocument) {
+            res.render('admin/edit', {
+                modelConfig: modelConfig,
+                item: populatedDocument,
+                controlsHTML: controlsHTML
+            });
+        })
+        .catch(function(err) {
+            next(err);
         });
-    });
 });
 
 router.post('/edit/:collection/:id', function(req, res) {
@@ -65,11 +171,6 @@ router.post('/edit/:collection/:id', function(req, res) {
         });
     }
 });
-
-var formidable = require('formidable'),
-    mkdirp = require('mkdirp'),
-    fs = require('fs'),
-    path = require('path');
 
 router.post('/upload', function(req, res) {
     var form = new formidable.IncomingForm(),

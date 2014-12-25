@@ -1,0 +1,18 @@
+
+div.form-group
+  label(for=field.id, class="col-sm-2 control-label")= field.label
+  .col-sm-10
+    - var value = document && document[field.name] ? document[field.name][field.originalField] : '';
+    input(
+      class!=[field.class, 'image_field'].join(' '),
+      name=field.name,
+      value!=value,
+      id=field.id,
+      type='file',
+      required=field.required,
+      data-settings!=field
+    )
+    if field.preview.field && field.preview.sizes.length
+      - var src = document && document[field.name] ? document[field.name][field.preview.field][field.preview.sizes[0].field] : '';
+      img(src=src)
+
