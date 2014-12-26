@@ -1,72 +1,8 @@
 
-mixin control()
-   if attributes.type == 'textarea'
-      +big()(class!=attributes.class, name=attributes.name, value!=attributes.value, id=attributes.id, required=attributes.required)
-   else if attributes.type == 'select'
-      +select()(class!=attributes.class, name=attributes.name, options!=attributes.options, value!=attributes.value, id=attributes.id, required=attributes.required)
-   else if attributes.type == 'rich'
-      +big()(class!=attributes.class + ' tinymce', name=attributes.name, value!=attributes.value, id=attributes.id, required=attributes.required)
-   else if attributes.type == 'checkbox'
-      +checkbox()(name=attributes.name, value!=attributes.value, id=attributes.id, caption!=attributes.caption, required=attributes.required, default=attributes.default)
-   else if attributes.type == 'image'
-      - var value = attributes.item && attributes.item[attributes.name] ? attributes.item[attributes.name][attributes.field.originalField] : '';
-      input(
-         class!=attributes.class + ' image_field',
-         name=attributes.name,
-         value!=value,
-         id=attributes.id,
-         type='file',
-         required=attributes.required,
-         data-settings=attributes.field
-       )
-      if attributes.field.preview.field && attributes.field.preview.sizes.length
-         - var src = attributes.item && attributes.item[attributes.name] ? attributes.item[attributes.name][attributes.field.preview.field][attributes.field.preview.sizes[0].field] : '';
-         img(src=src)
-   else
-      +input()(class!=attributes.class, name=attributes.name, value!=attributes.value, id=attributes.id, type=attributes.type, required=attributes.required)
-
-mixin select()
-   select(name=attributes.name, id=attributes.id, class!=attributes.class, required=attributes.required)
-      option() ---
-      for value in _.result(attributes, 'options')
-         option(value=value.val, selected=(value.val == attributes.value))= (value.title || value.val)
-
-mixin input()
-   input(type=(attributes.type || 'text'), name=attributes.name, value!=attributes.value, id=attributes.id, class!=attributes.class, required=attributes.required)
-
-mixin big()
-   textarea(name=attributes.name, id=attributes.id, class!=attributes.class, required=attributes.required)!= attributes.value
-
-mixin checkbox()
-   div(class="checkbox")
-      label
-         input(type="checkbox", id=attributes.id, checked=(item ? attributes.value : attributes.default), required=attributes.required).form_checkbox
-         | #{attributes.caption}
-         input(type="hidden", name=attributes.name, value=(item ? attributes.value : attributes.default)).hidden_checkbox
-
 extends layout
 block content
    form(action="/admin/edit/" + modelConfig.name + "/" + (item && item.id ? item.id : 'new'), method="POST", data-collection=modelConfig.name).form-horizontal.admin_form
       | !{controlsHTML.join('')}
-      for field, fieldName in modelConfig.fields
-         div.form-group
-            - var fieldId = modelConfig.name + '_' + fieldName;
-            label(for=fieldId, class="col-sm-2 control-label")= field.label
-            .col-sm-10
-               +control()(
-                  item=item,
-                  field=field,
-                  class="form-control",
-                  name=fieldName,
-                  value=(item && item[fieldName] ? item[fieldName] : ''),
-                  type=field.type,
-                  id=fieldId,
-                  caption=(field.label || field.name),
-                  required=field.required,
-                  default=field.default,
-                  options=field.options || []
-               )
-               //input(type=field.type, class="form-control", id=fieldId, placeholder=field.placeholder, value=item[fieldName])
 
       div.form-group
          div(class="col-sm-offset-2 col-sm-10")

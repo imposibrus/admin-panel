@@ -12,7 +12,7 @@ div.form-group
       required=field.required,
       data-settings!=field
     )
-    if field.preview.field && field.preview.sizes.length
-      - var src = document && document[field.name] ? document[field.name][field.preview.field][field.preview.sizes[0].field] : '';
+    if field.preview.field
+      - var src = document && document[field.name] ? document[field.name][field.preview.field] : '';
       img(src=src)
 

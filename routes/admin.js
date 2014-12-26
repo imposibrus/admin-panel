@@ -28,6 +28,7 @@ router.get('/list/:collection', function(req, res) {
     models[modelConfig.model].find({}).exec(function(err, collection) {
         res.render('admin/list', {
             modelConfig: modelConfig,
+            adminConfig: adminConfig,
             collection: collection
         });
     });
@@ -81,7 +82,9 @@ var calcOptions = function calcOptions(modelConfig) {
 var controlsFolder = path.resolve(__dirname, '..', 'views', 'admin', 'controls');
 
 var renderControls = function renderControls(res, modelConfig, document) {
-    var renderPromises = [];
+    var renderPromises = [],
+        defaultController = require(path.join(controlsFolder, '_default'));
+
     _.each(modelConfig.fields, function(field, fieldName) {
         var defer = Q.defer();
         field.id = modelConfig.name + '_' + fieldName;
@@ -89,7 +92,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
         field.name = fieldName;
         field.caption = field.label || field.name;
         field.value = document ? document[fieldName] : '';
-        (require(path.join(controlsFolder, '_default')))(res, field, document, function(err, html) {
+        defaultController(res, field, document, function(err, html) {
             if(err) {
                 return defer.reject(err);
             }

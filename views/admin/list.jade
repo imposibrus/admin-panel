@@ -1,3 +1,12 @@
+
+mixin genFieldActions(actions, item)
+  for action in actions
+    | &nbsp;
+    if action.html
+      != action.html.call(item, modelConfig.name)
+    else if action.type == 'link'
+      a(href=action.href.call(item, modelConfig.name), target=action.target, class=action.classes)= action.text
+
 extends layout
 
 block content
@@ -6,7 +15,7 @@ block content
          tr
             for field in modelConfig.list.fields
                th= field.label
-            if modelConfig.list.fieldActions.length
+            if adminConfig.fieldActions.length || modelConfig.list.fieldActions.length
                th Actions
       tbody
          for item in collection
@@ -16,14 +25,16 @@ block content
                      td= item[field.field]
                   else if field.value
                      td!= field.value.call(item)
-               if modelConfig.list.fieldActions.length
+               if adminConfig.fieldActions.length
                   td
-                     for action in modelConfig.list.fieldActions
-                        | &nbsp;
-                        if action.html
-                           != action.html.call(item)
-                        else if action.type == 'link'
-                           a(href=action.href.call(item), target=action.target, class=action.classes)= action.text
+                      +genFieldActions(adminConfig.fieldActions, item)
+               else if modelConfig.list.fieldActions.length
+                  td
+                      +genFieldActions(modelConfig.list.fieldActions, item)
 
-   for listAction in modelConfig.list.listActions
-      != listAction.html
+   if adminConfig.listActions.length
+     for listAction in adminConfig.listActions
+        != listAction.html(modelConfig.name)
+   else if modelConfig.list.listActions.length
+     for listAction in modelConfig.list.listActions
+        != listAction.html(modelConfig.name)

@@ -5,6 +5,7 @@ var mongoose = require('mongoose'),
 
 var photosSchema = new Schema({
   url: String,
+  preview: String,
   path: String
 }, {_id: false});
 

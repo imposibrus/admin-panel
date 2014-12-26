@@ -2,6 +2,23 @@
 var models = require('./models');
 
 module.exports = {
+  fieldActions: [
+    {
+      type: 'link',
+      text: 'Edit',
+      classes: 'btn btn-default',
+      //target: '_blank',
+      href: function(collectionsName) {return '/admin/edit/'+ collectionsName +'/' + this.id;}
+    },
+    {
+      html: function(collectionsName) {return '<a href="/admin/delete/'+ collectionsName +'/'+ this.id +'">Delete</a>';}
+    }
+  ],
+  listActions: [
+    {
+      html: function(collectionsName) {return '<a href="/admin/edit/'+ collectionsName +'/new" class="btn btn-success">Add new</a>';}
+    }
+  ],
   collections: [
     {
       name: "users",
@@ -61,23 +78,6 @@ module.exports = {
               }
             }
           }
-        ],
-        fieldActions: [
-          {
-            type: 'link',
-            text: 'Edit',
-            classes: 'btn btn-default',
-            //target: '_blank',
-            href: function() {return '/admin/edit/users/' + this.id;}
-          },
-          {
-            html: function() {return '<a href="/admin/delete/users/'+ this.id +'">Delete</a>';}
-          }
-        ],
-        listActions: [
-          {
-            html: '<a href="/admin/edit/users/new" class="btn btn-success">Add new</a>'
-          }
         ]
       }
     },
@@ -120,23 +120,10 @@ module.exports = {
         },
         photos: {
           type: 'image',
-          originalField: 'original',
+          originalField: 'url',
           array: false,
           preview: {
-            field: 'preview',
-            sizes: [
-              {
-                width: 50,
-                height: 50,
-                watermark: false,
-                field: '50'
-              },
-              {
-                width: 100,
-                height: 100,
-                field: '100'
-              }
-            ]
+            field: 'preview'
           },
           watermark: true
         }
@@ -146,23 +133,22 @@ module.exports = {
           {
             label: 'Title',
             field: 'title'
-          }
-        ],
-        fieldActions: [
-          {
-            type: 'link',
-            text: 'Edit',
-            classes: 'btn btn-default',
-            //target: '_blank',
-            href: function() {return '/admin/edit/albums/' + this.id;}
           },
           {
-            html: function() {return '<a href="/admin/delete/albums/'+ this.id +'">Delete</a>';}
-          }
-        ],
-        listActions: [
+            label: 'text',
+            field: 'text'
+          },
           {
-            html: '<a href="/admin/edit/albums/new" class="btn btn-success">Add new</a>'
+            label: 'textarea',
+            field: 'textarea'
+          },
+          {
+            label: 'rich',
+            field: 'rich'
+          },
+          {
+            label: 'checkbox',
+            field: 'checkbox'
           }
         ]
       }
