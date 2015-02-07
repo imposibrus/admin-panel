@@ -1,14 +1,15 @@
 
 var express = require('express'),
     router = express.Router(),
-    adminConfig = require('../admin-config'),
-    models = require('../models'),
     _ = require('lodash'),
     formidable = require('formidable'),
     mkdirp = require('mkdirp'),
     fs = require('fs'),
     path = require('path'),
-    Q = require('q');
+    Q = require('q'),
+    gm = require('gm'),
+    adminConfig = require('../admin-config'),
+    models = require('../models');
 
 
 Q.longStackSupport = true;
@@ -26,10 +27,13 @@ router.get('/list/:collection', function(req, res) {
     var collection = req.params.collection;
     var modelConfig = _.find(adminConfig.collections, {name: collection});
     models[modelConfig.model].find({}).exec(function(err, collection) {
-        res.render('admin/list', {
-            modelConfig: modelConfig,
-            adminConfig: adminConfig,
-            collection: collection
+        var promises = collection.map(function(document) {return populateItem(document, modelConfig.populate);});
+        Q.all(promises).then(function(populatedDocuments) {
+            res.render('admin/list', {
+                modelConfig: modelConfig,
+                adminConfig: adminConfig,
+                collection: populatedDocuments
+            });
         });
     });
 });
@@ -152,6 +156,8 @@ router.post('/edit/:collection/:id', function(req, res) {
         id = req.params.id,
         modelConfig = _.find(adminConfig.collections, {name: collection});
 
+  console.log(req.body);
+
     if(id == 'new') {
         new models[modelConfig.model](req.body).save(function(err) {
             if(err) {
@@ -178,9 +184,17 @@ router.post('/edit/:collection/:id', function(req, res) {
 router.post('/upload', function(req, res) {
     var form = new formidable.IncomingForm(),
         folder = req.query.folder ? '/' + req.query.folder : '',
-        previews = req.query.previews;
+        previews = req.query.previews,
+        defaultPreviewSize = 60;
 
     form.hash = 'md5';
+
+    console.log(req.query);
+    // settings
+      // originalField
+      // array
+      // preview
+      // watermark
 
     form.parse(req, function(err, fields, files) {
         var dirPath = path.resolve(__dirname, '../public/storage' + folder),
@@ -207,11 +221,11 @@ router.post('/upload', function(req, res) {
             // directly put content to destination
             readStream.pipe(writeStream).on('finish', function() {
                 gm(files.file.path)
-                    .resize(60)
+                    .resize(defaultPreviewSize)
                     .gravity('Center')
-                    .crop(60, 60, 0, 0)
+                    .crop(defaultPreviewSize, defaultPreviewSize, 0, 0)
                     .noProfile()
-                    .write(newFileAbsolutePath.replace(newFileName, newFileName + '_preview60x60'), function(err) {
+                    .write(newFileAbsolutePath.replace(newFileName, newFileName + '_preview'+ defaultPreviewSize +'x'+ defaultPreviewSize), function(err) {
                         fs.unlink(files.file.path, function(err) {
                             if(err) {
                                 console.log(err);
@@ -222,7 +236,7 @@ router.post('/upload', function(req, res) {
                             console.log(err);
                             return res.send({status: 500, err: err, desc: 'error on creating preview'}, 500);
                         }
-                        res.send({status: 200, path: newFileUserPath});
+                        res.send({status: 200, path: newFileUserPath, preview: ''});
                         //defer.resolve({fullSize: newFileUserPath, preview: newFileUserPathPreview, fieldName: fieldName});
                     });
             }).on('error', function(err) {

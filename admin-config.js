@@ -30,11 +30,11 @@ module.exports = {
           label: 'Label Text',
           placeholder: 'Placeholder'
         },
-        password: {
-          type: "password",
-          required: true,
-          label: 'your password'
-        },
+        //password: {
+        //  type: "password",
+        //  required: true,
+        //  label: 'your password'
+        //},
         photos: {
           type: 'image',
           originalField: 'original',
@@ -118,6 +118,11 @@ module.exports = {
             });
           }
         },
+        user_type: {
+          type: 'select',
+          label: 'Тип пользователя',
+          options: [{val: 1, title: 'Первый тип'}, {val: 2, title: 'Второй тип'}]
+        },
         photos: {
           type: 'image',
           originalField: 'url',
@@ -139,16 +144,22 @@ module.exports = {
             field: 'text'
           },
           {
-            label: 'textarea',
-            field: 'textarea'
-          },
-          {
             label: 'rich',
             field: 'rich'
           },
           {
             label: 'checkbox',
             field: 'checkbox'
+          },
+          {
+            label: 'user',
+            field: 'user',
+            populateField: 'name',
+            populatedCollection: 'users'
+          },
+          {
+            label: 'user_type',
+            field: 'user_type'
           }
         ]
       }

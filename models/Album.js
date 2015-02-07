@@ -15,7 +15,11 @@ var albumsSchema = new Schema({
     required: true
   },
   user: {type: Schema.Types.ObjectId, ref: 'User'},
-  photos: [photosSchema]
+  photos: [photosSchema],
+  text: String,
+  rich: String,
+  checkbox: Boolean,
+  user_type: Number
 });
 
 module.exports = mongoose.model('Album', albumsSchema);
