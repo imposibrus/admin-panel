@@ -125,6 +125,7 @@ module.exports = {
         },
         photos: {
           type: 'image',
+          label: 'image',
           originalField: 'url',
           array: false,
           preview: {

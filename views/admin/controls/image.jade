@@ -3,16 +3,19 @@ div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   .col-sm-10
     - var value = document && document[field.name] ? document[field.name][field.originalField] : '';
-    input(
-      class!=[field.class, 'image_field'].join(' '),
-      name=field.name,
-      value!=value,
-      id=field.id,
-      type='file',
-      required=field.required,
-      data-settings!=field
-    )
-    if field.preview.field
-      - var src = document && document[field.name] ? document[field.name][field.preview.field] : '';
-      img(src=src)
+    button(type="button").btn.btn-default.upload_btn
+      span Обзор...
+      input(
+        class!=[field.class, 'image_field'].join(' '),
+        name=field.name,
+        value!=value,
+        id=field.id,
+        type='file',
+        required=field.required,
+        data-settings!=field
+      )
+    .previews_list
+      if field.preview.field && document && document[field.name]
+        for image in document[field.name]
+          img(src=image[field.preview.field])
 

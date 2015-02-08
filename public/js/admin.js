@@ -31,36 +31,18 @@ $(function() {
 
   $('input[type="file"]').each(function() {
     var $this = $(this),
-        $form_group = $this.closest('.form-group'),
         $text_input = $this.clone();
 
-    $text_input.popover({
-      html: true,
-      placement: 'top',
-      trigger: 'hover',
-      content: function() {
-        var val = $(this).val();
-        if(val) {
-          return '<div class="popover_image"><img src="'+ val +'"></div>';
-        } else {
-          return false;
-        }
-      }
-    });
-    $this.wrap('<div class="input-group"></div>');
-    $this.before($text_input.attr('type', 'text'))
+    $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
         .removeAttr('id')
         .attr('name', 'file_' + $this.attr('name'));
 
-    $this.wrap('<div class="input-group-btn"><button type="button" class="btn btn-default upload_btn"></button></div>');
-    $this.closest('.upload_btn').prepend('<span>Обзор...</span>');
-    $form_group.addClass('drop_zone');
     $this.on('change', function() {
       var $input = $(this),
           files = $input[0].files;
 
-      sendFiles(files, $this.data('settings'), function(paths) {
-        $text_input.val(paths);
+      sendFiles(files, $this.data('settings'), function(uploadedFiles) {
+        $text_input.val(JSON.stringify(uploadedFiles));
       });
     });
   });
@@ -102,7 +84,7 @@ var sendFiles = function(files, options, callback) {
   }
   var filesLength = files.length,
       collection = $('.admin_form').data('collection'),
-      filePaths = [],
+      uploadedFiles = [],
       promises = [];
 
   for (var i = 0; i < filesLength; i++) {
@@ -125,8 +107,8 @@ var sendFiles = function(files, options, callback) {
         cache: false,
         type: 'POST',
         success: function (data) {
-          if(data.status == 200 && data.path) {
-            defer.resolve(data.path);
+          if(data.status == 200 && data.files) {
+            defer.resolve(data.files);
           } else {
             alert('Что-то пошло не так, отругайте программиста');
           }
@@ -137,8 +119,8 @@ var sendFiles = function(files, options, callback) {
   }
   $.when.apply($, promises).then(function() {
     for(var i = 0; i < arguments.length; i++) {
-      filePaths.push(arguments[i]);
+      uploadedFiles.push(arguments[i]);
     }
-    callback(filePaths.join(', '));
+    callback(uploadedFiles);
   });
 };

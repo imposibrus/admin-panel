@@ -151,12 +151,35 @@ router.get('/edit/:collection/:id', function(req, res, next) {
         });
 });
 
+var parseImages = function(body, modelConfig) {
+  var imagesFields = [];
+  _.each(modelConfig.fields, function(field, fieldName) {
+    if(field.type == 'image') {
+      imagesFields.push({fieldName: fieldName, field: field});
+    }
+  });
+  imagesFields.forEach(function(imageField) {
+    var newField = [],
+        jsonField = JSON.parse(body[imageField.fieldName]);
+
+    jsonField.forEach(function(image) {
+      var obj = {};
+      obj[imageField.field.originalField] = image[imageField.field.originalField];
+      if(imageField.field.preview && imageField.field.preview.field) {
+        obj[imageField.field.preview.field] = image[imageField.field.preview.field];
+      }
+      newField.push(obj);
+    });
+    body[imageField.fieldName] = newField;
+  });
+
+  return _.pluck(imagesFields, 'fieldName');
+};
+
 router.post('/edit/:collection/:id', function(req, res) {
     var collection = req.params.collection,
         id = req.params.id,
         modelConfig = _.find(adminConfig.collections, {name: collection});
-
-  console.log(req.body);
 
     if(id == 'new') {
         new models[modelConfig.model](req.body).save(function(err) {
@@ -170,7 +193,18 @@ router.post('/edit/:collection/:id', function(req, res) {
             if(err) {
                 return res.send({status: 500, err: err}, 500);
             }
-            item = _.extend(item, req.body);
+
+            var images = parseImages(req.body, modelConfig),
+                originalImagesFields = _.pick(req.body, images);
+
+            item = _.extend(item, _.omit(req.body, images));
+
+            _.each(originalImagesFields, function(field, fieldName) {
+              field.forEach(function(image) {
+                item[fieldName].addToSet(image);
+              });
+            });
+
             item.save(function(err) {
                 if(err) {
                     return res.send({status: 500, err: err}, 500);
@@ -181,72 +215,21 @@ router.post('/edit/:collection/:id', function(req, res) {
     }
 });
 
+var fileUpload = require('../lib/fileUpload');
+
 router.post('/upload', function(req, res) {
-    var form = new formidable.IncomingForm(),
-        folder = req.query.folder ? '/' + req.query.folder : '',
-        previews = req.query.previews,
-        defaultPreviewSize = 60;
 
-    form.hash = 'md5';
-
-    console.log(req.query);
-    // settings
-      // originalField
-      // array
-      // preview
-      // watermark
-
-    form.parse(req, function(err, fields, files) {
-        var dirPath = path.resolve(__dirname, '../public/storage' + folder),
-            ext = files.file.name.split('.').pop(),
-            newFileAbsolutePath,
-            newFileUserPath,
-            newFileName = files.file.hash;
-
-        // create uploads dir if not exist
-        if(!fs.existsSync(dirPath)) {
-            mkdirp.sync(dirPath);
-        }
-
-        // absolute path to new file
-        newFileAbsolutePath = path.resolve(dirPath, newFileName + '.' + ext);
-        // path to file for user
-        newFileUserPath = '/storage'+ folder +'/' + newFileName + '.' + ext;
-
-        var readStream = fs.createReadStream(files.file.path),
-            writeStream = fs.createWriteStream(newFileAbsolutePath);
-
-        // wait for open readable stream
-        readStream.on('open', function() {
-            // directly put content to destination
-            readStream.pipe(writeStream).on('finish', function() {
-                gm(files.file.path)
-                    .resize(defaultPreviewSize)
-                    .gravity('Center')
-                    .crop(defaultPreviewSize, defaultPreviewSize, 0, 0)
-                    .noProfile()
-                    .write(newFileAbsolutePath.replace(newFileName, newFileName + '_preview'+ defaultPreviewSize +'x'+ defaultPreviewSize), function(err) {
-                        fs.unlink(files.file.path, function(err) {
-                            if(err) {
-                                console.log(err);
-                            }
-                        });
-
-                        if(err) {
-                            console.log(err);
-                            return res.send({status: 500, err: err, desc: 'error on creating preview'}, 500);
-                        }
-                        res.send({status: 200, path: newFileUserPath, preview: ''});
-                        //defer.resolve({fullSize: newFileUserPath, preview: newFileUserPathPreview, fieldName: fieldName});
-                    });
-            }).on('error', function(err) {
-                return res.send(err);
-            });
-        }).on('error', function(err) {
-            return res.send(err);
-        });
-
-    });
+  fileUpload(req).then(function(files) {
+    // FIXME: multiple files uploading
+    res.send({status: 200, files: files[0]});
+  }).catch(function(err) {
+    res.status(500).send({status: 500, err: err});
+  });
+  // settings
+    // originalField
+    // array
+    // preview
+    // watermark
 });
 
 module.exports = router;
