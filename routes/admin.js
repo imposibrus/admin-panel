@@ -95,7 +95,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
         field.class = _.uniq(_.compact(['form-control', field.class])).join(' ');
         field.name = fieldName;
         field.caption = field.label || field.name;
-        field.value = document ? document[fieldName] : '';
+        field.value = document.get ? document.get(fieldName) : '';
         defaultController(res, field, document, function(err, html) {
             if(err) {
                 return defer.reject(err);
