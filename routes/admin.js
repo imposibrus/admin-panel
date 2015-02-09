@@ -92,7 +92,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
     _.each(modelConfig.fields, function(field, fieldName) {
         var defer = Q.defer();
         field.id = modelConfig.name + '_' + fieldName;
-        field.class = _.compact(['form-control', field.class]).join(' ');
+        field.class = _.uniq(_.compact(['form-control', field.class])).join(' ');
         field.name = fieldName;
         field.caption = field.label || field.name;
         field.value = document ? document[fieldName] : '';
