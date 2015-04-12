@@ -1,0 +1,20 @@
+
+script.
+  setTimeout(function() {
+    $(function() {
+      $(document).on('click', '.remove_input', function() {
+        $(this).closest('.input').remove();
+      });
+    });
+  }, 1500);
+
+div.form-group
+  label(for=field.id, class="col-sm-2 control-label")= field.label
+  .col-sm-10
+    if _.isArray(field.value)
+      .inputs_list
+        for input, index in field.value
+          .input
+            input(type="text", name="#{field.name}[#{index}]", value=input)
+            button(type="button").btn.btn-sm.btn-danger.remove_input x
+

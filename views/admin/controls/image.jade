@@ -2,20 +2,34 @@
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   .col-sm-10
-    - var value = document && document[field.name] ? document[field.name][field.originalField] : '';
+    - var value = document && document.get ? document.get(field.name) : '';
+    - if(_.isArray(value)) value = JSON.stringify(value)
+    - else if(typeof value === 'object') value = JSON.stringify([value]);
     button(type="button").btn.btn-default.upload_btn
       span Обзор...
       input(
         class!=[field.class, 'image_field'].join(' '),
         name=field.name,
-        value!=value,
+        value=value,
         id=field.id,
         type='file',
         required=field.required,
-        data-settings!=field
+        data-settings!=field,
+        multiple=!!field.array
       )
     .previews_list
-      if field.preview.field && document && document[field.name]
-        for image in document[field.name]
-          img(src=image[field.preview.field])
+      if field.preview && field.preview.field && document && document[field.name]
+        if _.isArray(document[field.name])
+          for image in document[field.name]
+            .item
+              img(src=image[field.preview.field])
+              .del_image x
+        else if document[field.name][field.preview.field]
+          .item
+            img(src=document[field.name][field.preview.field])
+            .del_image x
+      else if field.originalField && document && document[field.name] && document[field.name][field.originalField]
+        .item
+          img(src=document[field.name][field.originalField])
+          .del_image x
 

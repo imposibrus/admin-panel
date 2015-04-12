@@ -1,0 +1,18 @@
+
+nav.navbar.navbar-inverse(role='navigation')
+  .container-fluid
+    .navbar-header
+      a.navbar-brand(href='/') KIT
+    ul.nav.navbar-nav
+      li.dropdown
+        a.dropdown-toggle(href='#', data-toggle='dropdown')
+          | Редактировать
+          span.caret
+        ul.dropdown-menu(role='menu')
+          for collection in adminConfig.collections
+            li
+              a(href="/admin/list/" + collection.name)= collection.label
+
+    ul.nav.navbar-nav.navbar-right
+      li
+        a(href='/admin/logout') Выход

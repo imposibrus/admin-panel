@@ -10,7 +10,7 @@ mixin genFieldActions(actions, item)
 extends layout
 
 block content
-   table.table
+   table.table.items_list
       thead
          tr
             for field in modelConfig.list.fields
@@ -26,7 +26,7 @@ block content
                         td
                           a(href='/admin/edit/' + field.populatedCollection + '/' + item[field.field].id, target="_blank")= item[field.field][field.populateField]
                      else
-                        td= item[field.field]
+                        td!= item.get(field.field)
                   else if field.value
                      td!= field.value.call(item)
                if adminConfig.fieldActions.length

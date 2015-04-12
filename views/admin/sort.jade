@@ -1,0 +1,53 @@
+
+extends layout
+
+block content
+  link(rel='stylesheet', href='/public/bower_components/jquery.ui/themes/base/all.css')
+
+  ul#sortable
+    for item in collection
+      //li.ui-state-default(data-order=(item.order || ''), data-num=item.num)!= (item.title || applyFilter(item.image, 'image') || applyFilter(item.images.thumbnail, 'image'))
+      li.ui-state-default(data-order=(item.order || ''), data-id=item.id)!= (item.title)
+
+
+  style.
+    #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+    #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; }
+
+
+  script.
+    setTimeout(function() {
+      $(function() {
+        var $sortable = $("#sortable");
+        $sortable.sortable();
+        $sortable.disableSelection();
+
+        $(document).on('click', '.save_sort', function () {
+          var $list = $('#sortable'), arr = {};
+          $list.find('li').each(function () {
+            arr[$(this).data('id')] = $(this).index();
+          });
+          $.post(document.location.pathname, {sort: arr}, function (data) {
+            if(data.status == 200) {
+              if(window.opener) {
+                window.opener.location.reload();
+                window.close();
+              } else {
+                history.back();
+              }
+            }
+          });
+        });
+        $(document).on('click', '.cancel_sort', function () {
+          if(window.opener) {
+            window.close();
+          } else {
+            history.back();
+          }
+        });
+
+      });
+    }, 100);
+
+  button(type="button").btn.btn-success.save_sort Сохранить
+  button(type="button").btn.btn-link.cancel_sort Отмена

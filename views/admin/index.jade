@@ -4,7 +4,7 @@ extends layout
 block content
   h1 hello, admin!
   ul
-    for collection in config.collections
+    for collection in adminConfig.collections
       li
-        a(href="/admin/list/" + collection.name)= collection.model
+        a(href="/admin/list/" + collection.name)= collection.label
 

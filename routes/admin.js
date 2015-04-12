@@ -2,7 +2,6 @@
 var express = require('express'),
     router = express.Router(),
     _ = require('lodash'),
-    formidable = require('formidable'),
     mkdirp = require('mkdirp'),
     fs = require('fs'),
     path = require('path'),
@@ -14,19 +13,55 @@ var express = require('express'),
 
 Q.longStackSupport = true;
 
+router.post('/login', function(req, res) {
+  var login = req.body.login,
+      pass = req.body.pass,
+      credentials = {login: 'admin', pass: 'admin'};
+
+  if(login == credentials.login && pass == credentials.pass) {
+    req.session.auth = true;
+    res.redirect('/admin');
+  } else {
+    res.render('admin/login', {session: req.session});
+  }
+});
+
+
+router.get('/logout', function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('/');
+  });
+});
+
+router.get('/login', function(req, res) {
+  if(!req.session || !req.session.auth) {
+    return res.render('admin/login', {session: req.session});
+  }
+  res.redirect('/admin');
+});
+
+router.use('/', function(req, res, next) {
+  if(!req.session || !req.session.auth) {
+    return res.redirect('/admin/login');
+  } else {
+    next();
+  }
+});
+
+
 //new models.User({
 //    name: 'more users!',
 //    password: 'pass #2'
 //}).save(function() {});
 
 router.get('/', function(req, res) {
-    res.render('admin/index', {config: adminConfig});
+    res.render('admin/index', {adminConfig: adminConfig});
 });
 
 router.get('/list/:collection', function(req, res) {
     var collection = req.params.collection;
     var modelConfig = _.find(adminConfig.collections, {name: collection});
-    models[modelConfig.model].find({}).exec(function(err, collection) {
+    models[modelConfig.model].find({}).sort({order: 1, created_at: -1}).exec(function(err, collection) {
         var promises = collection.map(function(document) {return populateItem(document, modelConfig.populate);});
         Q.all(promises).then(function(populatedDocuments) {
             res.render('admin/list', {
@@ -36,6 +71,51 @@ router.get('/list/:collection', function(req, res) {
             });
         });
     });
+});
+
+router.post('/sort/:collection', function(req, res) {
+  var sortArr = req.body.sort,
+      collection = req.params.collection,
+      modelConfig = _.find(adminConfig.collections, {name: collection}),
+      promises = [];
+
+  _.forEach(sortArr, function(order, id) {
+    var defer = Q.defer();
+    models[modelConfig.model].findOneAndUpdate({_id: id}, {order: ~~order}).exec(function(err/*, updated*/) {
+      if(err) {
+        return defer.reject(err);
+      }
+
+      defer.resolve();
+    });
+    promises.push(defer.promise);
+  });
+
+  Q.all(promises).done(function() {
+    res.send({status: 200});
+  }, function(err) {
+    console.log(err);
+    res.status(500).send({status: 500, err: err});
+  });
+
+});
+
+router.get('/sort/:collection', function(req, res) {
+  var collection = req.params.collection,
+      modelConfig = _.find(adminConfig.collections, {name: collection});
+
+  models[modelConfig.model].find().sort({order: 1, created_at: -1}).exec(function(err, foundDocuments) {
+    if(err) {
+      throw err;
+    }
+
+    res.render('admin/sort', {
+      modelConfig: modelConfig,
+      adminConfig: adminConfig,
+      collection: foundDocuments
+    });
+  });
+
 });
 
 /**
@@ -66,18 +146,25 @@ var populateItem = function populateItem(document, populate) {
  * @returns {Q.promise}
  */
 var calcOptions = function calcOptions(modelConfig) {
-    var optionsPromises = [];
+    var optionsPromises = [],
+        calculate = function(field) {
+          var optionDefer = Q.defer();
+          field.options(function(err, options) {
+            if(err) {
+              return optionDefer.reject(err);
+            }
+            field.options = options;
+            optionDefer.resolve();
+          });
+          return optionDefer.promise;
+        };
+
     _.each(modelConfig.fields, function(field) {
         if(field.options && typeof field.options == 'function') {
-            var optionDefer = Q.defer();
-            field.options(function(err, options) {
-                if(err) {
-                    return optionDefer.reject(err);
-                }
-                field.options = options;
-                optionDefer.resolve();
-            });
-            optionsPromises.push(optionDefer.promise);
+            optionsPromises.push(calculate(field));
+        }
+        if(field._nestedSchema && field._nestedSchema.fields) {
+            optionsPromises.push(calcOptions(field._nestedSchema));
         }
     });
     return Q.all(optionsPromises);
@@ -92,6 +179,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
     _.each(modelConfig.fields, function(field, fieldName) {
         var defer = Q.defer();
         field.id = modelConfig.name + '_' + fieldName;
+        // FIXME: classes continue duplicating
         field.class = _.uniq(_.compact(['form-control', field.class])).join(' ');
         field.name = fieldName;
         field.caption = field.label || field.name;
@@ -123,9 +211,15 @@ var getDocumentById = function(id, modelConfig) {
 };
 
 router.get('/edit/:collection/:id', function(req, res, next) {
+    // FIXME: invalidate config cache. because of populated fields saved in original config
+    _.each(require.cache, function(opts, name, all) {
+      if(/admin-config\.js$/.test(opts.filename)) {
+        delete all[name];
+      }
+    });
     var collection = req.params.collection,
         id = req.params.id,
-        modelConfig = _.find(adminConfig.collections, {name: collection});
+        modelConfig = _.find(require('../admin-config').collections, {name: collection});
 
     getDocumentById(id, modelConfig)
         .then(function(document) {
@@ -142,6 +236,7 @@ router.get('/edit/:collection/:id', function(req, res, next) {
         .spread(function(controlsHTML, populatedDocument) {
             res.render('admin/edit', {
                 modelConfig: modelConfig,
+                adminConfig: adminConfig,
                 item: populatedDocument,
                 controlsHTML: controlsHTML
             });
@@ -162,74 +257,182 @@ var parseImages = function(body, modelConfig) {
     var newField = [],
         jsonField = JSON.parse(body[imageField.fieldName]);
 
-    jsonField.forEach(function(image) {
-      var obj = {};
-      obj[imageField.field.originalField] = image[imageField.field.originalField];
+    if(_.isArray(jsonField)) {
+      jsonField.forEach(function(image) {
+        var obj = {};
+        obj[imageField.field.originalField] = image[imageField.field.originalField];
+        if(imageField.field.preview && imageField.field.preview.field) {
+          obj[imageField.field.preview.field] = image[imageField.field.preview.field];
+        }
+        newField.push(obj);
+      });
+    } else {
+      newField = {};
+      newField[imageField.field.originalField] = jsonField[imageField.field.originalField];
       if(imageField.field.preview && imageField.field.preview.field) {
-        obj[imageField.field.preview.field] = image[imageField.field.preview.field];
+        newField[imageField.field.preview.field] = jsonField[imageField.field.preview.field];
       }
-      newField.push(obj);
-    });
+    }
     body[imageField.fieldName] = newField;
   });
 
   return _.pluck(imagesFields, 'fieldName');
 };
 
-router.post('/edit/:collection/:id', function(req, res) {
-    var collection = req.params.collection,
-        id = req.params.id,
-        modelConfig = _.find(adminConfig.collections, {name: collection});
+var prepareItem = function(body, item, modelConfig) {
+  var images = parseImages(body, modelConfig),
+      originalImagesFields = _.pick(body, images);
 
-    if(id == 'new') {
-        new models[modelConfig.model](req.body).save(function(err) {
-            if(err) {
-                return res.send({status: 500, err: err}, 500);
-            }
-            res.redirect('/admin/list/' + collection);
-        });
-    } else {
-        models[modelConfig.model].findById(id).exec(function(err, item) {
-            if(err) {
-                return res.send({status: 500, err: err}, 500);
-            }
-
-            var images = parseImages(req.body, modelConfig),
-                originalImagesFields = _.pick(req.body, images);
-
-            item = _.extend(item, _.omit(req.body, images));
-
-            _.each(originalImagesFields, function(field, fieldName) {
-              field.forEach(function(image) {
-                item[fieldName].addToSet(image);
-              });
-            });
-
-            item.save(function(err) {
-                if(err) {
-                    return res.send({status: 500, err: err}, 500);
-                }
-                res.redirect('/admin/list/' + collection);
-            });
-        });
+  // FIXME: deep dot notation setter
+  _.each(body, function(val, name, all) {
+    if(name.indexOf('.') != -1) {
+      var arr = name.split('.');
+      if(!all[arr[0]]) {
+        all[arr[0]] = {};
+      }
+      all[arr[0]][arr[1]] = val;
     }
+  });
+  item = _.extend(item, _.omit(body, images));
+
+  _.each(originalImagesFields, function(field, fieldName) {
+    if(_.isArray(field)) {
+      if(field.length > 1) {
+        item[fieldName] = field;
+      } else {
+        item[fieldName] = field[0];
+      }
+    } else {
+      item[fieldName] = field;
+    }
+  });
+
+  return item;
+};
+
+router.post('/edit/:collection/:id', function(req, res) {
+  var collection = req.params.collection,
+      id = req.params.id,
+      modelConfig = _.find(adminConfig.collections, {name: collection});
+
+  if(id == 'new') {
+    var newItem = new models[modelConfig.model](req.body);
+
+    newItem = prepareItem(req.body, newItem, modelConfig);
+
+    newItem.save(function(err) {
+      if(err) {
+        return res.status(500).send({status: 500, err: err});
+      }
+
+      res.redirect('/admin/list/' + collection);
+    });
+  } else {
+    models[modelConfig.model].findById(id).exec(function(err, item) {
+      if(err) {
+        return res.status(500).send({status: 500, err: err});
+      }
+
+      item = prepareItem(req.body, item, modelConfig);
+
+      item.save(function(err) {
+        if(err) {
+          return res.status(500).send({status: 500, err: err});
+        }
+
+        res.redirect('/admin/list/' + collection);
+      });
+    });
+  }
 });
 
-var fileUpload = require('../lib/fileUpload');
+router.get('/delete/:collection/:id', function(req, res, next) {
+  var collection = req.params.collection,
+      id = req.params.id,
+      modelConfig = _.find(adminConfig.collections, {name: collection});
+
+  models[modelConfig.model].remove({_id: id}).exec(function(err) {
+    if(err) {
+      return next(err);
+    }
+
+    res.redirect('/admin/list/' + collection);
+  });
+});
+
+var defaultPreviewSizeWidth = 60,
+    defaultPreviewSizeHeight = 60;
 
 router.post('/upload', function(req, res) {
+  var projectsUploadDir = path.resolve(__dirname, '..', 'public/storage/' + req.query.folder),
+      filesPromises = [],
+      settings = req.query.settings,
+      preview = settings.preview,
+      width,
+      height,
+      maxEdge;
 
-  fileUpload(req).then(function(files) {
-    // FIXME: multiple files uploading
-    res.send({status: 200, files: files[0]});
-  }).catch(function(err) {
-    res.status(500).send({status: 500, err: err});
+  if(!fs.existsSync(projectsUploadDir)) {
+    mkdirp.sync(projectsUploadDir);
+  }
+
+  if(preview) {
+    width = preview.width || defaultPreviewSizeWidth;
+    height = preview.height || defaultPreviewSizeHeight;
+  } else {
+    width = defaultPreviewSizeWidth;
+    height = defaultPreviewSizeHeight;
+  }
+
+  maxEdge = _.max([width, height]);
+
+  _.each(req.files, function(file) {
+    var fileDefer = Q.defer();
+    var userFolder = '/public/storage/' + req.query.folder,
+        newFilename = file.hash + path.extname(file.name),
+        newFilePreviewName = newFilename.replace(file.hash, file.hash + '_preview'+ width +'x'+ height),
+        newFilePath = path.join(projectsUploadDir, newFilename),
+        newFilePreviewPath = path.join(projectsUploadDir, newFilePreviewName),
+
+        userUrl = path.join(userFolder, newFilename),
+        userPreviewUrl = path.join(userFolder, newFilePreviewName);
+
+    //fs.renameSync(file.path, newFilePath);
+    fs.createReadStream(file.path).pipe(fs.createWriteStream(newFilePath)).on('close', function() {
+      fs.unlink(file.path, function (err) {
+        if(err) {
+          console.log(err);
+        }
+      });
+
+      gm(newFilePath)
+          .resize(maxEdge, maxEdge + '^')
+          .gravity('Center')
+          .crop(width, height)
+          .noProfile()
+          .write(newFilePreviewPath, function(err) {
+            if(err) {
+              console.log(err);
+              return fileDefer.reject(err);
+            }
+
+            var resp = {};
+            resp[settings.originalField] = userUrl;
+            if(settings.preview) {
+              resp[settings.preview.field] = userPreviewUrl;
+            }
+            fileDefer.resolve(resp);
+          });
+    }).on('error', function(err) {
+      res.status(500).send({status: 500, err: err});
+    });
+
+    filesPromises.push(fileDefer.promise);
   });
-  // settings
-    // originalField
-    // array
-    // preview
-    // watermark
+
+  Q.all(filesPromises).then(function(files) {
+    res.send({status: 200, files: files});
+  });
 });
 
 module.exports = router;

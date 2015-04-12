@@ -19,7 +19,8 @@ var albumsSchema = new Schema({
   text: String,
   rich: String,
   checkbox: Boolean,
-  user_type: Number
+  user_type: Number,
+  attachments: [String]
 });
 
 module.exports = mongoose.model('Album', albumsSchema);

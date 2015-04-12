@@ -1,0 +1,15 @@
+//-
+   Created by imposibrus on 08.08.14.
+
+extends layout
+
+block content
+  form(role='form', action="/admin/login", method="POST")
+    .form-group
+      label(for='login') Login
+      input#login.form-control(type='text', name="login", placeholder='Enter login', autofocus=true)
+    .form-group
+      label(for='password') Password
+      input#password.form-control(type='password', name="pass", placeholder='Password')
+    button.btn.btn-default(type='submit') Submit
+

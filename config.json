@@ -1,0 +1,7 @@
+{
+  "PORT": 3600,
+  "sessionSecret": "admin-panel",
+  "mongoose": {
+    "url": "mongodb://localhost/admin-panel"
+  }
+}

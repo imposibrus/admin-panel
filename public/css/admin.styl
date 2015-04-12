@@ -1,4 +1,6 @@
 
+@require functions
+
 .dragging {
   .form-group {
     opacity .2
@@ -51,3 +53,30 @@
     max-width: 200px
   }
 }
+
+.previews_list {
+  user-select none
+  .item {
+    position: relative
+    display: inline-block
+    vertical-align: top
+    width: 180px
+    height: 180px
+    .del_image {
+      position: absolute
+      top: 0
+      right: 0
+      background-color: red
+      border-radius 50%
+      width: 20px
+      height: 20px
+      color: #fff
+      text-align: center
+      cursor: pointer
+    }
+  }
+  img {
+    width: 180px
+  }
+}
+
