@@ -171,10 +171,10 @@ var sendFiles = function(files, options, callback) {
 
   filesArray.forEach(function(file) {
     formData.append('file', file);
-    if(options.name) {
-      formData.append('name', options.name);
-    }
   });
+  if(options.name) {
+    formData.append('name', options.name);
+  }
 
   var ajaxOptions = {
     url: url,
