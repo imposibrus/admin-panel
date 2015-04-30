@@ -1,6 +1,7 @@
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
-  .col-sm-10
+  .col-sm-7
     input(type=(field.type || 'text'), step="any", name=field.name, value!=field.value, id=field.id, class!=field.class, required=field.required)
+  .col-sm-3= field.hint
 

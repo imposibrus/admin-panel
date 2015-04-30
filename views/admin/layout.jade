@@ -9,7 +9,8 @@ html
   body
     if session.auth
       include ../admin/panel
-    block content
+    .container-fluid
+      block content
 
     script(src="/public/bower_components/jquery/dist/jquery.min.js")
     script(src="/public/bower_components/jquery.ui/ui/core.js")

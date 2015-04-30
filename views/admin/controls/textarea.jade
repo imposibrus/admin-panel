@@ -1,6 +1,6 @@
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
-  .col-sm-10
+  .col-sm-7
     textarea(name=field.name, id=field.id, class!=field.class, required=field.required)!= humanize.nl2br(field.value)
-
+  .col-sm-3= field.hint

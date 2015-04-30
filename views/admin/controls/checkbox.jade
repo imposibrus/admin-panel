@@ -1,10 +1,10 @@
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
-  .col-sm-10
+  .col-sm-7
     div(class="checkbox")
       label
         input(type="checkbox", id=field.id, checked=(field.value || field.default), required=field.required).form_checkbox
         | #{field.caption}
         input(type="hidden", name=field.name, value=(field.value || field.default)).hidden_checkbox
-
+  .col-sm-3= field.hint

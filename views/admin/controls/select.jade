@@ -1,14 +1,14 @@
 
 div.form-group
-   label(for=field.id, class="col-sm-2 control-label")= field.label
-   .col-sm-10
-      select(name=field.name, id=field.id, class!=field.class, required=field.required)
-         if typeof field.default !== 'undefined'
-          option(value=field.default)= field.default
-         else
-          option() ---
-         for value in _.result(field, 'options')
-            //- console.log(document);
-            - var val = document && document.populated && document.populated(field.name) || field.value;
-            option(value=value.val, selected=(value.val == val))= (value.title || value.val)
-
+  label(for=field.id, class="col-sm-2 control-label")= field.label
+  .col-sm-7
+    select(name=field.name, id=field.id, class!=field.class, required=field.required)
+      if typeof field.default !== 'undefined'
+        option(value=field.default)= field.default
+      else
+        option() ---
+      for value in _.result(field, 'options')
+        //- console.log(document);
+        - var val = document && document.populated && document.populated(field.name) || field.value;
+        option(value=value.val, selected=(value.val == val))= (value.title || value.val)
+  .col-sm-3= field.hint

@@ -1,7 +1,7 @@
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
-  .col-sm-10
+  .col-sm-7
     - var value = document && document.get ? document.get(field.name) : '';
     - if(_.isArray(value)) value = JSON.stringify(value)
     - else if(typeof value === 'object') value = JSON.stringify([value]);
@@ -32,4 +32,4 @@ div.form-group
         .item
           img(src=document[field.name][field.originalField])
           .del_image x
-
+  .col-sm-3= field.hint
