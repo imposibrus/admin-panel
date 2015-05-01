@@ -126,7 +126,7 @@ router.get('/sort/:collection', function(req, res) {
  */
 var populateItem = function populateItem(document, populate) {
     var populationDefer = Q.defer();
-    if(!_.isEmpty(document) && !_.isEmpty(populate)) {
+    if(!document.isNew && !_.isEmpty(populate)) {
         document.populate(populate, function(err, populatedItem) {
             if(err) {
                 return populationDefer.reject(err);
@@ -259,16 +259,22 @@ var parseImages = function(body, modelConfig) {
       jsonField.forEach(function(image) {
         var obj = {};
         obj[imageField.field.originalField] = image[imageField.field.originalField];
-        if(imageField.field.preview && imageField.field.preview.field) {
-          obj[imageField.field.preview.field] = image[imageField.field.preview.field];
+        if(imageField.field.previews && image.previews) {
+          obj.previews = {};
+          _.each(imageField.field.previews, function(previewParams, key) {
+            obj.previews[key] = image.previews[key];
+          });
         }
         newField.push(obj);
       });
     } else {
       newField = {};
       newField[imageField.field.originalField] = jsonField[imageField.field.originalField];
-      if(imageField.field.preview && imageField.field.preview.field) {
-        newField[imageField.field.preview.field] = jsonField[imageField.field.preview.field];
+      if(imageField.field.previews && jsonField.previews) {
+        newField.previews = {};
+        _.each(imageField.field.previews, function(previewParams, key) {
+          newField.previews[key] = jsonField.previews[key];
+        });
       }
     }
     body[imageField.fieldName] = newField;
@@ -281,17 +287,9 @@ var prepareItem = function(body, item, modelConfig) {
   var images = parseImages(body, modelConfig),
       originalImagesFields = _.pick(body, images);
 
-  // FIXME: deep dot notation setter
-  _.each(body, function(val, name, all) {
-    if(name.indexOf('.') != -1) {
-      var arr = name.split('.');
-      if(!all[arr[0]]) {
-        all[arr[0]] = {};
-      }
-      all[arr[0]][arr[1]] = val;
-    }
+  _.each(_.omit(body, images), function(val, name) {
+    item.set(name, val);
   });
-  item = _.extend(item, _.omit(body, images));
 
   _.each(originalImagesFields, function(field, fieldName) {
     if(_.isArray(field)) {
@@ -314,7 +312,7 @@ router.post('/edit/:collection/:id', function(req, res) {
       modelConfig = _.find(adminConfig.collections, {name: collection});
 
   if(id == 'new') {
-    var newItem = new models[modelConfig.model](req.body);
+    var newItem = new models[modelConfig.model]();
 
     newItem = prepareItem(req.body, newItem, modelConfig);
 

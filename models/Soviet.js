@@ -8,7 +8,12 @@ var sovietsSchema = new Schema({
   district: {type: Schema.Types.ObjectId, ref: 'District'},
   image: {
     url: String,
-    preview: String
+    previews: {
+      '220x214': {
+        url: String,
+        path: String
+      }
+    }
   },
   order: {type: Number, index: true, default: 0},
   is_other_district: {type: Boolean, default: false},

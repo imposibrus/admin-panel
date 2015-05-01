@@ -60,7 +60,8 @@ $(function() {
     $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
         .removeAttr('id')
         .attr('name', 'file_' + $this.attr('name'))
-        .removeClass('image_field');
+        .removeClass('image_field')
+        .attr('value', '');
 
     $this.on('change', function() {
       var $input = $(this),
@@ -70,7 +71,7 @@ $(function() {
         return;
       }
       if(!$this.is('[multiple]')) {
-        $previews_list.find('img').remove();
+        $previews_list.find('.item, .readerPreviewWrp').remove();
       }
       for(var i = 0; i < files.length; i++) {
         var oFReader = new FileReader();
@@ -104,7 +105,7 @@ $(function() {
           var smallestPreview = function(previews) {
             return Object.keys(previews).sort()[0];
           };
-          $previews_list.find('.readerPreview').remove();
+          $previews_list.find('.readerPreviewWrp').remove();
           if(!settings.array) {
             $previews_list.find('.item').remove();
           }
@@ -125,6 +126,8 @@ $(function() {
               '</div>',
             ''].join(''));
           }
+        } else {
+          $previews_list.find('.readerPreviewWrp').addClass('uploaded');
         }
       });
     });

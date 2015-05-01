@@ -135,10 +135,11 @@ module.exports = {
           type: "image",
           label: 'Изображение',
           originalField: 'url',
-          preview: {
-            field: 'preview',
-            width: 220,
-            height: 214
+          previews: {
+            '220x214': {
+              width: 220,
+              height: 214
+            }
           }
         }
       },
@@ -155,10 +156,12 @@ module.exports = {
           {
             label: 'Изображение',
             value: function() {
-              if(!this.image || !this.image.preview) {
+              if(!this.image || !this.image.previews) {
                 return '';
               }
-              return '<img src="'+ this.image.preview +'">';
+              var firsPreview = Object.keys(this.image.previews.toObject()).sort()[0];
+
+              return '<img src="'+ this.image.previews[firsPreview].url +'">';
             }
           }
         ]
@@ -479,7 +482,10 @@ module.exports = {
               if(_.isEmpty(this.get('images'))) {
                 return '';
               }
-              return '<img src="'+ _.first(this.get('images')).preview +'">';
+              var firstImage = _.first(this.get('images')),
+                  firsPreview = Object.keys(firstImage.previews.toObject()).sort()[0];
+
+              return '<img src="'+ firstImage.previews[firsPreview].url +'">';
             }
           },
           {

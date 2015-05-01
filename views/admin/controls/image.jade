@@ -15,24 +15,26 @@ div.form-group
         id=field.id,
         type='file',
         required=field.required,
-        data-settings!=field,
+        data-settings!=_.omit(field, 'value'),
         multiple=!!field.array
       )
     .previews_list
-      if !_.isEmpty(field.previews)
-        - var previewName = Object.keys(field.previews)[0];
-        if _.isArray(document.get(field.name))
-          for image in document.get(field.name)
+      if !document.isNew
+        - var documentValue = document.get(field.name);
+        if !_.isEmpty(field.previews)
+          - var previewName = Object.keys(field.previews)[0];
+          if _.isArray(documentValue)
+            for image in documentValue
+              .item
+                img(src=image.previews[previewName].url, data-url=image[field.originalField])
+                .del_image x
+          else if documentValue.previews[previewName].url
             .item
-              img(src=image.previews[previewName].url)
+              img(src=documentValue.previews[previewName].url, data-url=documentValue[field.originalField])
               .del_image x
-        else if document.get(field.name).previews[previewName].url
+        else
           .item
-            img(src=document.get(field.name).previews[previewName].url)
+            img(src=documentValue[field.originalField], data-url=documentValue[field.originalField])
             .del_image x
-      else
-        .item
-          img(src=document.get(field.name)[field.originalField])
-          .del_image x
   if hasHint
     .col-sm-3= field.hint
