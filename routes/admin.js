@@ -153,7 +153,7 @@ var calcOptions = function calcOptions(modelConfig) {
             if(err) {
               return optionDefer.reject(err);
             }
-            field.options = options;
+            field.calculatedOptions = options;
             optionDefer.resolve();
           });
           return optionDefer.promise;
@@ -179,8 +179,12 @@ var renderControls = function renderControls(res, modelConfig, document) {
     _.each(modelConfig.fields, function(field, fieldName) {
         var defer = Q.defer();
         field.id = modelConfig.name + '_' + fieldName;
-        // FIXME: classes continue duplicating
-        field.class = _.uniq(_.compact(['form-control', field.class])).join(' ');
+        var classesArray = (field.class || '').split(' ');
+        if(classesArray.indexOf('form-control') == -1) {
+          classesArray.push('form-control');
+        }
+
+        field.class = _.uniq(_.compact(classesArray)).join(' ');
         field.name = fieldName;
         field.caption = field.label || field.name;
         field.value = document.get(fieldName) || '';
@@ -211,12 +215,6 @@ var getDocumentById = function(id, modelConfig) {
 };
 
 router.get('/edit/:collection/:id', function(req, res, next) {
-    // FIXME: invalidate config cache. because of populated fields saved in original config
-    _.each(require.cache, function(opts, name, all) {
-      if(/admin-config\.js$/.test(opts.filename)) {
-        delete all[name];
-      }
-    });
     var collection = req.params.collection,
         id = req.params.id,
         modelConfig = _.find(require('../admin-config').collections, {name: collection});
