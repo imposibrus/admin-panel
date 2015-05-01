@@ -10,7 +10,8 @@ script.
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
-  .col-sm-7
+  - var hasHint = !!field.hint;
+  div(class="col-sm-" + (hasHint ? '7' : '10'))
     if _.isArray(field.value)
       .files_list
         for file, index in field.value
@@ -25,4 +26,5 @@ div.form-group
               input(type="hidden", name="#{field.name}[#{index}]", value=file)
 
             button(type="button").btn.btn-sm.btn-danger.remove_file x
-  .col-sm-3= field.hint
+  if hasHint
+    .col-sm-3= field.hint

@@ -284,7 +284,8 @@ module.exports = {
         title: {
           type: "text",
           required: true,
-          label: 'Название'
+          label: 'Название',
+          hint: 'Название инициативы'
         },
         desc: {
           type: "rich",
