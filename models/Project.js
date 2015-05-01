@@ -13,8 +13,18 @@ var projectsSchema = new Schema({
   result: {type: String},
   images: [
     {
-      original: String,
-      preview: String
+      url: String,
+      path: String,
+      previews: {
+        '180x180': {
+          url: String,
+          path: String
+        },
+        '220x214': {
+          url: String,
+          path: String
+        }
+      }
     }
   ],
   videos: [

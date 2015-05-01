@@ -183,7 +183,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
         field.class = _.uniq(_.compact(['form-control', field.class])).join(' ');
         field.name = fieldName;
         field.caption = field.label || field.name;
-        field.value = document.get ? document.get(fieldName) : '';
+        field.value = document.get(fieldName) || '';
         defaultController(res, field, document, function(err, html) {
             if(err) {
                 return defer.reject(err);
@@ -198,7 +198,7 @@ var renderControls = function renderControls(res, modelConfig, document) {
 var getDocumentById = function(id, modelConfig) {
     var defer = Q.defer();
     if(id == 'new') {
-        defer.resolve({});
+        defer.resolve(new models[modelConfig.model]());
     } else {
         models[modelConfig.model].findById(id).exec(function(err, document) {
             if(err) {
@@ -360,44 +360,50 @@ router.get('/delete/:collection/:id', function(req, res, next) {
   });
 });
 
-var defaultPreviewSizeWidth = 60,
-    defaultPreviewSizeHeight = 60;
+var genImagePreviews = function(options) {
+  var defer = Q.defer(),
+      maxEdge = _.max([options.previewParams.width, options.previewParams.height]);
+
+  gm(options.newFilePath)
+      .resize(maxEdge, maxEdge + '^')
+      .gravity('Center')
+      .crop(options.previewParams.width, options.previewParams.height)
+      .noProfile()
+      .write(options.previewPath, function(err) {
+        if(err) {
+          console.log(err);
+          return defer.reject(err);
+        }
+
+        var previewObject = {};
+        previewObject[options.previewParams.width + 'x' + options.previewParams.height] = {
+          url: options.previewUrl,
+          path: options.previewPath
+        };
+        defer.resolve(previewObject);
+      });
+
+  return defer.promise;
+};
 
 router.post('/upload', function(req, res) {
-  var projectsUploadDir = path.resolve(__dirname, '..', 'public/storage/' + req.query.folder),
+  var uploadFolderPath = path.resolve(__dirname, '..', 'public/storage/' + req.query.folder),
       filesPromises = [],
       settings = req.query.settings,
-      preview = settings.preview,
-      width,
-      height,
-      maxEdge;
+      previews = settings.previews;
 
-  if(!fs.existsSync(projectsUploadDir)) {
-    mkdirp.sync(projectsUploadDir);
+  if(!fs.existsSync(uploadFolderPath)) {
+    mkdirp.sync(uploadFolderPath);
   }
-
-  if(preview) {
-    width = preview.width || defaultPreviewSizeWidth;
-    height = preview.height || defaultPreviewSizeHeight;
-  } else {
-    width = defaultPreviewSizeWidth;
-    height = defaultPreviewSizeHeight;
-  }
-
-  maxEdge = _.max([width, height]);
 
   _.each(req.files, function(file) {
-    var fileDefer = Q.defer();
-    var userFolder = '/public/storage/' + req.query.folder,
+    var fileDefer = Q.defer(),
+        userFolder = '/public/storage/' + req.query.folder,
         newFilename = file.hash + path.extname(file.name),
-        newFilePreviewName = newFilename.replace(file.hash, file.hash + '_preview'+ width +'x'+ height),
-        newFilePath = path.join(projectsUploadDir, newFilename),
-        newFilePreviewPath = path.join(projectsUploadDir, newFilePreviewName),
+        newFilePath = path.join(uploadFolderPath, newFilename),
 
-        userUrl = path.join(userFolder, newFilename),
-        userPreviewUrl = path.join(userFolder, newFilePreviewName);
+        userUrl = path.join(userFolder, newFilename);
 
-    //fs.renameSync(file.path, newFilePath);
     fs.createReadStream(file.path).pipe(fs.createWriteStream(newFilePath)).on('close', function() {
       fs.unlink(file.path, function (err) {
         if(err) {
@@ -405,24 +411,38 @@ router.post('/upload', function(req, res) {
         }
       });
 
-      gm(newFilePath)
-          .resize(maxEdge, maxEdge + '^')
-          .gravity('Center')
-          .crop(width, height)
-          .noProfile()
-          .write(newFilePreviewPath, function(err) {
-            if(err) {
-              console.log(err);
-              return fileDefer.reject(err);
-            }
+      var previewsPromises = [];
 
-            var resp = {};
-            resp[settings.originalField] = userUrl;
-            if(settings.preview) {
-              resp[settings.preview.field] = userPreviewUrl;
-            }
-            fileDefer.resolve(resp);
+      if(!_.isEmpty(previews)) {
+        _.each(previews, function(previewParams) {
+          var previewName = newFilename.replace(
+              file.hash, file.hash + '_preview'+ previewParams.width +'x'+ previewParams.height
+          );
+          var options = {
+            previewUrl: path.join(userFolder, previewName),
+            previewPath: path.join(uploadFolderPath, previewName),
+            newFilePath: newFilePath,
+            previewParams: previewParams
+          };
+
+          previewsPromises.push(genImagePreviews(options));
+        });
+      }
+
+      Q.all(previewsPromises).done(function(previewsObjects) {
+        var resp = {};
+        resp[settings.originalField] = userUrl;
+        if(!_.isEmpty(previewsObjects)) {
+          resp.previews = {};
+          previewsObjects.forEach(function(previewParams) {
+            resp.previews = _.extend(resp.previews, previewParams);
           });
+        }
+
+        fileDefer.resolve(resp);
+      }, function(err) {
+        fileDefer.reject(err);
+      });
     }).on('error', function(err) {
       res.status(500).send({status: 500, err: err});
     });
@@ -430,8 +450,10 @@ router.post('/upload', function(req, res) {
     filesPromises.push(fileDefer.promise);
   });
 
-  Q.all(filesPromises).then(function(files) {
+  Q.all(filesPromises).done(function(files) {
     res.send({status: 200, files: files});
+  }, function(err) {
+    res.status(500).send({status: 500, err: err});
   });
 });
 

@@ -365,11 +365,16 @@ module.exports = {
           type: "image",
           label: 'Изображения',
           array: true,
-          originalField: 'original',
-          preview: {
-            field: 'preview',
-            width: 180,
-            height: 180
+          originalField: 'url',
+          previews: {
+            '180x180': {
+              width: 180,
+              height: 180
+            },
+            '220x214': {
+              width: 220,
+              height: 214
+            }
           }
         },
         videos: {

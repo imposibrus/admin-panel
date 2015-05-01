@@ -59,7 +59,8 @@ $(function() {
 
     $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
         .removeAttr('id')
-        .attr('name', 'file_' + $this.attr('name'));
+        .attr('name', 'file_' + $this.attr('name'))
+        .removeClass('image_field');
 
     $this.on('change', function() {
       var $input = $(this),
@@ -76,7 +77,7 @@ $(function() {
         oFReader.readAsDataURL(files[i]);
 
         oFReader.onload = function(oFREvent) {
-          $previews_list.append('<img src="'+ oFREvent.target.result +'" class="readerPreview">');
+          $previews_list.append('<div class="readerPreviewWrp"><img src="'+ oFREvent.target.result +'" class="readerPreview"></div>');
         };
       }
 
@@ -84,6 +85,7 @@ $(function() {
         if(err) {
           return alert('err!');
         }
+
         if(settings.array) {
           var oldVal,
               newVal;
@@ -98,17 +100,30 @@ $(function() {
         } else {
           $text_input.val(JSON.stringify(uploadedFiles));
         }
-        if(settings.preview) {
+        if(settings.previews) {
+          var smallestPreview = function(previews) {
+            return Object.keys(previews).sort()[0];
+          };
           $previews_list.find('.readerPreview').remove();
           if(!settings.array) {
             $previews_list.find('.item').remove();
           }
           if(_.isArray(uploadedFiles)) {
             uploadedFiles.forEach(function(image) {
-              $previews_list.append('<div class="item"><img src="'+ image.preview +'"/><div class="del_image">x</div>');
+              $previews_list.append([
+                '<div class="item">',
+                  '<img src="'+ image.previews[smallestPreview(image.previews)].url +'" data-url="'+ image.url +'"/>',
+                  '<div class="del_image">x</div>',
+                '</div>',
+              ''].join(''));
             });
           } else {
-            $previews_list.append('<div class="item"><img src="'+ uploadedFiles.preview +'"/><div class="del_image">x</div>');
+            $previews_list.append([
+              '<div class="item">',
+                '<img src="'+ uploadedFiles.previews[smallestPreview(uploadedFiles.previews)].url +'" data-url="'+ uploadedFiles.url +'"/>',
+                '<div class="del_image">x</div>',
+              '</div>',
+            ''].join(''));
           }
         }
       });
@@ -143,7 +158,8 @@ $(function() {
         $img = $this.siblings('img'),
         $input = $this.closest('.previews_list').siblings('.upload_btn').find('.image_field'),
         inputVal = JSON.parse($input.val()),
-        newVal = _.reject(inputVal, {preview: $img.attr('src')});
+        originalUrl = $img.data('url'),
+        newVal = _.reject(inputVal, {url: originalUrl});
 
     $input.attr('value', JSON.stringify(newVal));
     $this.closest('.item').remove();
@@ -169,8 +185,8 @@ var sendFiles = function(files, options, callback) {
       },
       url = '/admin/upload?' + $.param(urlQuery);
 
-  filesArray.forEach(function(file) {
-    formData.append('file', file);
+  filesArray.forEach(function(file, index) {
+    formData.append('file_' + index, file);
   });
   if(options.name) {
     formData.append('name', options.name);

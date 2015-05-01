@@ -2,7 +2,7 @@
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   .col-sm-7
-    - var value = document && document.get ? document.get(field.name) : '';
+    - var value = document.get(field.name) || '';
     - if(_.isArray(value)) value = JSON.stringify(value)
     - else if(typeof value === 'object') value = JSON.stringify([value]);
     button(type="button").btn.btn-default.upload_btn
@@ -18,18 +18,19 @@ div.form-group
         multiple=!!field.array
       )
     .previews_list
-      if field.preview && field.preview.field && document && document[field.name]
-        if _.isArray(document[field.name])
-          for image in document[field.name]
+      if !_.isEmpty(field.previews)
+        - var previewName = Object.keys(field.previews)[0];
+        if _.isArray(document.get(field.name))
+          for image in document.get(field.name)
             .item
-              img(src=image[field.preview.field])
+              img(src=image.previews[previewName].url)
               .del_image x
-        else if document[field.name][field.preview.field]
+        else if document.get(field.name).previews[previewName].url
           .item
-            img(src=document[field.name][field.preview.field])
+            img(src=document.get(field.name).previews[previewName].url)
             .del_image x
-      else if field.originalField && document && document[field.name] && document[field.name][field.originalField]
+      else
         .item
-          img(src=document[field.name][field.originalField])
+          img(src=document.get(field.name)[field.originalField])
           .del_image x
   .col-sm-3= field.hint
