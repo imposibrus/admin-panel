@@ -1,7 +1,9 @@
 
-var _ = require('lodash'),
+var path = require('path'),
+    _ = require('lodash'),
     models = require('../../models'),
-    adminConfig = require('../../admin-config');
+    adminConfig = require('../../admin-config'),
+    viewsFolder = path.resolve(__dirname, '../..', 'views');
 
 module.exports = function(req, res) {
   var collection = req.params.collection,
@@ -12,7 +14,7 @@ module.exports = function(req, res) {
       throw err;
     }
 
-    res.render('admin/sort', {
+    res.render(path.join(viewsFolder, 'admin/sort'), {
       modelConfig: modelConfig,
       adminConfig: adminConfig,
       collection: foundDocuments

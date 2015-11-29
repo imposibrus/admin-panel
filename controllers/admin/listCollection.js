@@ -4,7 +4,8 @@ var path = require('path'),
     Promise = require('bluebird'),
     models = require('../../models'),
     adminConfig = require('../../admin-config'),
-    populateItem = require('./populateItem');
+    populateItem = require('./populateItem'),
+    viewsFolder = path.resolve(__dirname, '../..', 'views');
 
 module.exports = function(req, res, next) {
   var collection = req.params.collection;
@@ -17,7 +18,7 @@ module.exports = function(req, res, next) {
       if(modelConfig.templates && modelConfig.templates.list) {
         templateName = path.basename(modelConfig.templates.list, path.extname(modelConfig.templates.list));
       }
-      res.render('admin/' + templateName, {
+      res.render(path.join(viewsFolder, 'admin/' + templateName), {
         modelConfig: modelConfig,
         adminConfig: adminConfig,
         collection: populatedDocuments

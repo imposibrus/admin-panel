@@ -1,10 +1,12 @@
 
-var _ = require('lodash'),
+var path = require('path'),
+    _ = require('lodash'),
     getDocumentById = require('./getDocumentById'),
     populateItem = require('./populateItem'),
     calcOptions = require('./calcOptions'),
     renderControls = require('./renderControls'),
-    adminConfig = require('../../admin-config');
+    adminConfig = require('../../admin-config'),
+    viewsFolder = path.resolve(__dirname, '../..', 'views');
 
 module.exports = function(req, res, next) {
   var collection = req.params.collection,
@@ -24,7 +26,7 @@ module.exports = function(req, res, next) {
             });
       })
       .spread(function(controlsHTML, populatedDocument) {
-        res.render('admin/edit', {
+        res.render(path.join(viewsFolder, 'admin/edit'), {
           modelConfig: modelConfig,
           adminConfig: adminConfig,
           item: populatedDocument,

@@ -1,11 +1,13 @@
 
-var express = require('express'),
+var path = require('path'),
+    express = require('express'),
     router = express.Router(),
     adminConfig = require('../admin-config'),
     controllers = require('../controllers'),
     models = require('../models'),
     sha1 = require('sha1'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    viewsFolder = path.resolve(__dirname, '..', 'views');
 
 router.post('/login', function(req, res, next) {
   var login = req.body.login,
@@ -45,7 +47,7 @@ router.get('/logout', function(req, res) {
 
 router.get('/login', function(req, res) {
   if(!req.session || !req.session.auth) {
-    return res.render('admin/login', {session: req.session});
+    return res.render(path.join(viewsFolder, 'admin/login'), {session: req.session});
   }
   res.redirect('/admin');
 });
@@ -59,7 +61,7 @@ router.use('/', function(req, res, next) {
 });
 
 router.get('/', function(req, res) {
-  res.render('admin/index', {adminConfig: adminConfig});
+  res.render(path.join(viewsFolder, 'admin/index'), {adminConfig: adminConfig});
 });
 
 router.get('/list/:collection', controllers.admin.listCollection);
