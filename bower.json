@@ -21,6 +21,7 @@
     "bootstrap": "~3.3.0",
     "lodash": "~3.6.0",
     "jquery.ui": "~1.11.4",
-    "tinymce": "~4.1.9"
+    "tinymce": "~4.1.9",
+    "noty": "~2.3.7"
   }
 }

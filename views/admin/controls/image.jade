@@ -4,8 +4,8 @@ div.form-group
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
     - var value = document.get(field.name) || '';
-    - if(_.isArray(value)) value = JSON.stringify(value)
-    - else if(typeof value === 'object') value = JSON.stringify([value]);
+    - if(_.isArray(value)) value = JSON.stringify(value.map(function(val) {return val.toObject();}))
+    - else if(typeof value === 'object') value = JSON.stringify(value.toObject ? [value.toObject()] : value);
     button(type="button").btn.btn-default.upload_btn
       span Обзор...
       input(
@@ -25,14 +25,15 @@ div.form-group
           - var previewName = Object.keys(field.previews)[0];
           if _.isArray(documentValue)
             for image in documentValue
-              .item
-                img(src=image.previews[previewName].url, data-url=image[field.originalField])
-                .del_image x
+              if image.previews[previewName].url
+                .item
+                  img(src=image.previews[previewName].url, data-url=image[field.originalField])
+                  .del_image x
           else if documentValue.previews[previewName].url
             .item
               img(src=documentValue.previews[previewName].url, data-url=documentValue[field.originalField])
               .del_image x
-        else
+        else if documentValue[field.originalField]
           .item
             img(src=documentValue[field.originalField], data-url=documentValue[field.originalField])
             .del_image x

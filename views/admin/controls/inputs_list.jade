@@ -12,11 +12,17 @@ div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
-    if _.isArray(field.value)
-      .inputs_list
+    .inputs_list
+      if _.isArray(field.value)
         for input, index in field.value
           .input
             input(type="text", name="#{field.name}[#{index}]", value=input)
             button(type="button").btn.btn-sm.btn-danger.remove_input x
+        else
+          .input
+            input(type="text", name="#{field.name}[0]", value='')
+            button(type="button").btn.btn-sm.btn-danger.remove_input x
+    .btn.btn-success.add_new_input +
+
   if hasHint
     .col-sm-3= field.hint

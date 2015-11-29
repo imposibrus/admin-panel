@@ -1,4 +1,6 @@
 
+$.noty.defaults.timeout = 10000;
+
 $(function() {
 
   $('.tinymce').tinymce({
@@ -168,7 +170,54 @@ $(function() {
     $this.closest('.item').remove();
   });
 
+  $('.datepicker').datepicker({
+    dateFormat: 'yy-mm-dd',
+    changeMonth: true,
+    changeYear: true,
+    yearRange: '2014:2050',
+    defaultDate: new Date()
+  });
+
+  $(document).on('click', '.postlink', function(e) {
+    var $link = $(this);
+    e.preventDefault();
+    $.post($link.attr('href'), $link.data('postdata')).done(function() {
+      document.location.reload();
+    });
+  });
+
+  var $defaultInput = '';
+
+  $(document).on('click', '.add_new_input', function() {
+    var $inputs_list = $(this).siblings('.inputs_list');
+
+    if($defaultInput.length) {
+      $defaultInput = prepareClonedInput($defaultInput);
+      $inputs_list.append($defaultInput.clone(true));
+      return;
+    }
+    var $lastInput = $inputs_list.find('.input:last');
+
+    $defaultInput = prepareClonedInput($lastInput.clone(true).find('input').val('').end());
+    $inputs_list.append($defaultInput.clone(true));
+  });
+
+  $(document).on('click', '.delete', function() {
+    if(!confirm('Вы уверены?')) {
+      return false;
+    }
+  });
+
 });
+
+var prepareClonedInput = function($input) {
+  return $input.find('input')
+      .attr('name', $input.find('input').attr('name').replace(/(.[^\[]*)\[([0-9+])\]/, function(matched, name, num) {
+        return name + '[' + (~~num + 1) + ']';
+      }))
+      .val('')
+      .end();
+};
 
 var sendFiles = function(files, options, callback) {
   if(!callback && typeof options === 'function') {

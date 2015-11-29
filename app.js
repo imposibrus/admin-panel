@@ -9,29 +9,24 @@ var express = require('express'),
 
     _ = require('lodash'),
     humanize = require('humanize'),
+
+    routes = require('./routes'),
     postNormalize = require('./lib/postNormalize'),
 
-    routes = require('./routes/index'),
-    users = require('./routes/users');
-
-var app = express();
+    app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.locals._ = _;
-app.locals.humanize = humanize;
-
-if(app.get('env') == 'development') {
-  app.locals.pretty = true;
+/* istanbul ignore next */
+if(app.get('env') === 'development') {
+  app.use(logger('dev'));
+  //app.locals.pretty = true;
 }
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
   secret: config.get('sessionSecret'),
@@ -49,8 +44,12 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.locals._ = _;
+app.locals.humanize = humanize;
+app.locals.config = config;
+app.locals.env = app.get('env');
+
 app.use('/', routes);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -63,9 +62,13 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
+/* istanbul ignore next */
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
+    if(req.xhr) {
+      return res.send({status: err.status || 500, message: err.message, error: err});
+    }
     res.render('error', {
       message: err.message,
       error: err
@@ -75,8 +78,12 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
+/* istanbul ignore next */
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
+  if(req.xhr) {
+    return res.send({status: err.status || 500, message: err.message, error: {}});
+  }
   res.render('error', {
     message: err.message,
     error: {}
