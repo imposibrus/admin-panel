@@ -60,6 +60,8 @@ router.use('/', function(req, res, next) {
   }
 });
 
+router.use('/public', express.static(path.resolve(__dirname, '..', 'public')));
+
 router.get('/', function(req, res) {
   res.render(path.join(viewsFolder, 'admin/index'), {adminConfig: adminConfig});
 });
