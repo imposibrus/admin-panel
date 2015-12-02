@@ -1,8 +1,7 @@
 
-var models = require('../../models'),
-    Promise = require('bluebird');
+var Promise = require('bluebird');
 
-var getDocumentById = function(id, modelConfig) {
+var getDocumentById = function(id, modelConfig, models) {
   return new Promise(function(resolve, reject) {
     if(id == 'new') {
       resolve(new models[modelConfig.model]());

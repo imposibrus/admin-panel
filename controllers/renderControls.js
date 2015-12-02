@@ -2,7 +2,7 @@
 var path = require('path'),
     _ = require('lodash'),
     Promise = require('bluebird'),
-    controlsFolder = path.resolve(__dirname, '..', '..', 'views', 'admin', 'controls');
+    controlsFolder = path.resolve(__dirname, '..', 'views', 'admin', 'controls');
 
 var renderControls = function renderControls(res, modelConfig, document) {
   var defaultController = require(path.join(controlsFolder, '_default'));
