@@ -11,21 +11,8 @@ html
     //link(rel='stylesheet', href='/admin/public/css/main.css')
     link(rel='stylesheet', href='/admin/public/css/admin.css')
     script.
-      if(!window.deferAfterjQueryLoaded) {
-        window.deferAfterjQueryLoaded = [];
-        Object.defineProperty(window, "$", {
-          set: function (value) {
-            window.setTimeout(function () {
-              $.each(window.deferAfterjQueryLoaded, function (index, fn) {
-                fn();
-              });
-            }, 0);
-            Object.defineProperty(window, "$", {value: value});
-          },
+      (function(w,d,u){w.readyQ=[];w.bindReadyQ=[];function p(x,y){if(x=="ready"){w.bindReadyQ.push(y);}else{w.readyQ.push(x);}};var a={ready:p,bind:p};w.$=w.jQuery=function(f){if(f===d||f===u){return a}else{p(f)}}})(window,document);
 
-          configurable: true
-        });
-      }
   body
     if session.auth
       include ../admin/panel
@@ -33,6 +20,9 @@ html
       block content
 
     script(src="/admin/public/bower_components/jquery/dist/jquery.min.js")
+    script.
+      (function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document);
+
     script(src="/admin/public/bower_components/jquery-ui/ui/core.js")
     script(src="/admin/public/bower_components/jquery-ui/ui/widget.js")
     script(src="/admin/public/bower_components/jquery-ui/ui/mouse.js")

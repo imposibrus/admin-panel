@@ -1,12 +1,10 @@
 
 script.
-  setTimeout(function() {
-    $(function() {
-      $(document).on('click', '.remove_input', function() {
-        $(this).closest('.input').remove();
-      });
+  $(function() {
+    $(document).on('click', '.remove_input', function() {
+      $(this).closest('.input').remove();
     });
-  }, 1500);
+  });
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label

@@ -1,12 +1,11 @@
 
 var express = require('express'),
     router = express.Router(),
-    adminRouter = require('./routes');
+    adminRouter = require('./routes'),
+    loginCallback = require('./controllers/loginCallback');
 
 module.exports = function(options) {
-  if(!options.loginCallback || typeof options.loginCallback != 'function') {
-    throw new Error('`loginCallback` is required and must be Function.');
-  }
+  options.loginCallback = options.loginCallback || loginCallback(options);
 
   router.post('/login', options.loginCallback);
 
