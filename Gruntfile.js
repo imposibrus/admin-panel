@@ -26,11 +26,7 @@ module.exports = function(grunt) {
       stylus: {
         files: ['public/css/*.styl'],
         tasks: 'stylus:compile'
-      }/*,*/
-      //clientjade: {
-      //  files: ['views/*.jade', 'views/**/*.jade'],
-      //  tasks: 'clientjade:compile'
-      //}
+      }
     },
     stylus: {
       compile: {
@@ -38,27 +34,13 @@ module.exports = function(grunt) {
           compress: false
         },
         files: {
-          'public/css/main.css': ['public/css/main.styl'],
           'public/css/admin.css': ['public/css/admin.styl']
         }
       }
-    }/*,
-    clientjade: {
-      compile: {
-        src: [
-          'views/index.jade',
-          'views/users.jade',
-          'views/navigation.jade',
-          'views/search.jade'
-        ],
-        dest: 'public/js/templates.js'
-      }
-    }*/
-
+    }
   });
 
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-  //grunt.loadNpmTasks('clientjade');
   grunt.registerTask('default', ['stylus', 'watch']);
 
 };

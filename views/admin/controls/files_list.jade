@@ -1,12 +1,10 @@
 
 script.
-  setTimeout(function() {
-    $(function() {
-      $(document).on('click', '.remove_file', function() {
-        $(this).closest('.file').remove();
-      });
+  $(function() {
+    $(document).on('click', '.remove_file', function() {
+      $(this).closest('.file').remove();
     });
-  }, 1500);
+  });
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label

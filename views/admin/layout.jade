@@ -2,24 +2,37 @@ doctype html
 html
   head
     title= title || 'Admin-panel'
-    link(rel='stylesheet', href='/public/bower_components/bootstrap/dist/css/bootstrap.css')
-    link(rel='stylesheet', href='/public/bower_components/bootstrap/dist/css/bootstrap-theme.css')
-    //link(rel='stylesheet', href='/public/css/main.css')
-    link(rel='stylesheet', href='/public/css/admin.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/bootstrap/dist/css/bootstrap.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/bootstrap/dist/css/bootstrap-theme.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/jquery-ui/themes/base/base.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/jquery-ui/themes/base/core.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/jquery-ui/themes/base/theme.css')
+    link(rel='stylesheet', href='/admin/public/bower_components/jquery-ui/themes/base/datepicker.css')
+    //link(rel='stylesheet', href='/admin/public/css/main.css')
+    link(rel='stylesheet', href='/admin/public/css/admin.css')
+    script.
+      (function(w,d,u){w.readyQ=[];w.bindReadyQ=[];function p(x,y){if(x=="ready"){w.bindReadyQ.push(y);}else{w.readyQ.push(x);}};var a={ready:p,bind:p};w.$=w.jQuery=function(f){if(f===d||f===u){return a}else{p(f)}}})(window,document);
+
   body
     if session.auth
       include ../admin/panel
     .container-fluid
       block content
 
-    script(src="/public/bower_components/jquery/dist/jquery.min.js")
-    script(src="/public/bower_components/jquery.ui/ui/core.js")
-    script(src="/public/bower_components/jquery.ui/ui/widget.js")
-    script(src="/public/bower_components/jquery.ui/ui/mouse.js")
-    script(src="/public/bower_components/jquery.ui/ui/draggable.js")
-    script(src="/public/bower_components/jquery.ui/ui/sortable.js")
-    script(src="/public/bower_components/bootstrap/dist/js/bootstrap.min.js")
-    script(src="/public/bower_components/tinymce/jquery.tinymce.min.js")
-    script(src="/public/bower_components/lodash/lodash.js")
-    script(src="/public/js/plugins.js")
-    script(src="/public/js/admin.js")
+    script(src="/admin/public/bower_components/jquery/dist/jquery.min.js")
+    script.
+      (function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document);
+
+    script(src="/admin/public/bower_components/jquery-ui/ui/core.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/widget.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/mouse.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/draggable.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/sortable.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/datepicker.js")
+    script(src="/admin/public/bower_components/jquery-ui/ui/i18n/datepicker-ru.js")
+    script(src="/admin/public/bower_components/bootstrap/dist/js/bootstrap.min.js")
+    script(src="/admin/public/bower_components/tinymce/jquery.tinymce.min.js")
+    script(src="/admin/public/bower_components/lodash/lodash.js")
+    script(src="/admin/public/bower_components/noty/js/noty/packaged/jquery.noty.packaged.min.js")
+    script(src="/admin/public/js/plugins.js")
+    script(src="/admin/public/js/admin.js")

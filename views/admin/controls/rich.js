@@ -1,5 +1,6 @@
 
-var _ = require('lodash');
+var path = require('path'),
+    _ = require('lodash');
 
 module.exports = function(res, field, document, cb) {
   var classesArray = (field.class || '').split(' ');
@@ -8,5 +9,5 @@ module.exports = function(res, field, document, cb) {
   }
 
   field.class = _.uniq(_.compact(classesArray)).join(' ');
-  res.render('admin/controls/textarea', {field: field, document: document}, cb);
+  res.render(path.join(__dirname, 'textarea'), {field: field, document: document}, cb);
 };

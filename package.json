@@ -1,33 +1,62 @@
 {
   "name": "admin-panel",
   "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
+  "description": "Admin-panel for projects based on Express.js and Mongoose.",
+  "keywords": [
+    "admin",
+    "admin-panel",
+    "administartion"
+  ],
+  "homepage": "https://github.com/imposibrus/admin-panel",
+  "bugs": {
+    "url": "https://github.com/imposibrus/admin-panel/issues"
   },
+  "license": "MIT",
+  "author": {
+    "name": "Vadim Petrov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imposibrus/admin-panel.git"
+  },
+  "engines": {
+    "node": ">=0.10.25"
+  },
+  "scripts": {
+    "postinstall": "grunt stylus"
+  },
+  "files": [
+    "controllers/",
+    "lib/",
+    "public/",
+    "scripts/",
+    "views/",
+    ".bowerrc",
+    "bower.json",
+    "Gruntfile.js",
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "routes.js"
+  ],
+  "main": "index.js",
   "dependencies": {
-    "body-parser": "~1.8.1",
-    "connect-mongo": "^0.8.0",
-    "cookie-parser": "~1.3.3",
-    "debug": "~2.0.0",
+    "bluebird": "3.0.5",
     "express": "~4.9.0",
-    "express-session": "^1.11.1",
-    "formidable": "^1.0.15",
     "gm": "^1.17.0",
     "humanize": "0.0.9",
-    "jade": "~1.6.0",
+    "intel": "1.0.2",
     "lodash": "^3.6.0",
     "mkdirp": "^0.5.0",
-    "mongoose": "3.8.23",
-    "morgan": "~1.3.0",
-    "nconf": "^0.7.1",
-    "q": "~1.1.2",
-    "serve-favicon": "~2.1.3"
+    "sha1": "1.1.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-stylus": "^0.20.0",
     "grunt-contrib-watch": "^0.6.1",
-    "matchdep": "^0.3.0"
+    "matchdep": "^0.3.0",
+    "mocha": "2.3.4",
+    "should": "7.1.1",
+    "supertest": "1.1.0"
   }
 }

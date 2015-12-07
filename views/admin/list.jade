@@ -10,35 +10,35 @@ mixin genFieldActions(actions, item)
 extends layout
 
 block content
-   table.table.items_list
-      thead
-         tr
-            for field in modelConfig.list.fields
-               th= field.label
-            if adminConfig.fieldActions.length || modelConfig.list.fieldActions.length
-               th Actions
-      tbody
-         for item in collection
-            tr
-               for field in modelConfig.list.fields
-                  if field.field
-                     if item.populated(field.field)
-                        td
-                          a(href='/admin/edit/' + field.populatedCollection + '/' + item[field.field].id, target="_blank")= item[field.field][field.populateField]
-                     else
-                        td!= item.get(field.field)
-                  else if field.value
-                     td!= field.value.call(item)
-               if adminConfig.fieldActions.length
-                  td
-                      +genFieldActions(adminConfig.fieldActions, item)
-               else if modelConfig.list.fieldActions.length
-                  td
-                      +genFieldActions(modelConfig.list.fieldActions, item)
+  table.table.items_list
+    thead
+      tr
+        for field in modelConfig.list.fields
+          th= field.label
+        if adminConfig.fieldActions.length || modelConfig.list.fieldActions.length
+          th Действия
+    tbody
+      for item in collection
+        tr
+          for field in modelConfig.list.fields
+            if field.field
+              if item.populated(field.field)
+               td
+                 a(href='/admin/edit/' + field.populatedCollection + '/' + item[field.field].id, target="_blank")= item[field.field][field.populateField]
+              else
+               td!= item.get(field.field)
+            else if field.value
+              td!= field.value.call(item)
+          if modelConfig.list.fieldActions && modelConfig.list.fieldActions.length
+            td
+              +genFieldActions(modelConfig.list.fieldActions, item)
+          else if adminConfig.fieldActions.length && modelConfig.list.fieldActions !== false
+            td
+              +genFieldActions(adminConfig.fieldActions, item)
 
-   if adminConfig.listActions.length
-     for listAction in adminConfig.listActions
-        != listAction.html(modelConfig.name)
-   else if modelConfig.list.listActions.length
-     for listAction in modelConfig.list.listActions
-        != listAction.html(modelConfig.name)
+  if modelConfig.list.listActions && modelConfig.list.listActions.length
+    for listAction in modelConfig.list.listActions
+      != listAction.html(modelConfig.name)
+  else if adminConfig.listActions.length && modelConfig.list.listActions !== false
+    for listAction in adminConfig.listActions
+      != listAction.html(modelConfig.name)

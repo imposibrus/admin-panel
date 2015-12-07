@@ -1,5 +1,6 @@
 
-var inputTypes = ['text', 'number', 'email', 'tel'];
+var path = require('path'),
+    inputTypes = ['text', 'number', 'email', 'tel'];
 
 module.exports = function(res, field, document, cb) {
   var controlType = field.type;
@@ -9,6 +10,6 @@ module.exports = function(res, field, document, cb) {
   try {
     require('./' + controlType)(res, field, document, cb);
   } catch(e) {
-    res.render('admin/controls/' + controlType, {field: field, document: document}, cb);
+    res.render(path.join(__dirname, controlType), {field: field, document: document}, cb);
   }
 };
