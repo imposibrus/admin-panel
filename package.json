@@ -1,6 +1,6 @@
 {
   "name": "admin-panel",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Admin-panel for projects based on Express.js and Mongoose.",
   "keywords": [
     "admin",
@@ -23,12 +23,13 @@
     "node": ">=0.10.25"
   },
   "scripts": {
-    "postinstall": "grunt stylus"
+    "prepublish": "grunt stylus"
   },
   "files": [
     "controllers/",
     "lib/",
     "public/",
+    "public/css/admin.css",
     "scripts/",
     "views/",
     ".bowerrc",
