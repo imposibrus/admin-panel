@@ -4,8 +4,8 @@ $.noty.defaults.timeout = 10000;
 $(function() {
 
   $('.tinymce').tinymce({
-    script_url: '/public/bower_components/tinymce/tinymce.min.js',
-    content_css : ["/public/css/main.css", '/public/bower_components/bootstrap/dist/css/bootstrap.css', '/public/bower_components/bootstrap/dist/css/bootstrap-theme.css'],
+    script_url: '/admin/public/bower_components/tinymce/tinymce.min.js',
+    content_css : ['/admin/public/bower_components/bootstrap/dist/css/bootstrap.css', '/admin/public/bower_components/bootstrap/dist/css/bootstrap-theme.css'],
     language: "ru",
     theme: "modern",
     convert_urls: true,
