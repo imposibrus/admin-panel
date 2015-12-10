@@ -13,13 +13,16 @@ block content
   table.table.items_list
     thead
       tr
+        th №
         for field in modelConfig.list.fields
           th= field.label
         if adminConfig.fieldActions.length || modelConfig.list.fieldActions.length
           th Действия
     tbody
+      - var num = 0;
       for item in collection
         tr
+          th= ++num
           for field in modelConfig.list.fields
             if field.field
               if item.populated(field.field)
