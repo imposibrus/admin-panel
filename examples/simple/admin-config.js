@@ -12,7 +12,7 @@ module.exports = {
     },
     {
       html: function(collectionsName) {
-        return '<a href="/admin/delete/'+ collectionsName +'/'+ this.id +'">Delete</a>';
+        return '<a href="/admin/delete/'+ collectionsName +'/'+ this.id +'" class="delete">Delete</a>';
       }
     }
   ],
