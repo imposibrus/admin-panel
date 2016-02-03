@@ -15,7 +15,7 @@ module.exports = function(options) {
 
     getDocumentById(id, modelConfig, options.models)
         .then(function(document) {
-          return populateItem(document, modelConfig.populate, options.models)
+          return populateItem(document, modelConfig, options.models)
               .then(function(populatedDocument) {
                 return calcOptions(modelConfig).then(function() {
                   return [

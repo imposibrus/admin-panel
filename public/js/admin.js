@@ -80,7 +80,12 @@ $(function() {
         oFReader.readAsDataURL(files[i]);
 
         oFReader.onload = function(oFREvent) {
-          $previews_list.append('<div class="readerPreviewWrp"><img src="'+ oFREvent.target.result +'" class="readerPreview"></div>');
+          $previews_list.append([
+            '<div class="item readerPreviewWrp">',
+              '<img src="'+ oFREvent.target.result +'" class="readerPreview">',
+              '<div class="del_preview">x</div>',
+            '</div>'
+          ].join(''));
         };
       }
 
@@ -89,8 +94,23 @@ $(function() {
           return alert('err!');
         }
 
-        var mediaArr = _.isArray(data.media) ? data.media : [data.media];
-        $text_input.val(_.map(mediaArr, 'id').join(''));
+        var mediaArr = _.isArray(data.media) ? data.media : [data.media],
+            uploadedIds = _.map(mediaArr, 'id');
+
+        if(settings.array) {
+          var oldVal,
+              newVal;
+
+          try {
+            oldVal = $text_input.val().split(',');
+          } catch(e) {
+            oldVal = [];
+          }
+          newVal = _.compact(oldVal.concat(uploadedIds));
+          $text_input.val(newVal.join(','));
+        } else {
+          $text_input.val(uploadedIds.join(','));
+        }
         if(settings.previews) {
           var smallestPreview = function(previews) {
             return Object.keys(previews).sort()[0];
@@ -121,6 +141,18 @@ $(function() {
         }
       });
     });
+  });
+
+  $(document).on('click', '.readerPreviewWrp .del_preview', function() {
+    var $readerPreviewWrp = $(this).closest('.readerPreviewWrp'),
+        index = $readerPreviewWrp.index(),
+        $previews_list = $readerPreviewWrp.closest('.previews_list'),
+        $input = $previews_list.siblings('.upload_btn').find('.image_field'),
+        inputVal = $input.val().split(',');
+
+    inputVal.splice(index, 1);
+    $input.val(_.compact(inputVal).join(','));
+    $readerPreviewWrp.remove();
   });
 
   $(document).on({

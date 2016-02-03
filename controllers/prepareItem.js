@@ -6,10 +6,22 @@ var prepareItem = function(body, item, modelConfig) {
   //var images = parseImages(body, modelConfig),
   //    originalImagesFields = _.pick(body, images);
 
-  _.each(/*_.omit(*/body/*, images)*/, function(val, name) {
+  var arraysFields = [];
+  _.each(modelConfig.fields, function(field, fieldName) {
+    if(field.array === true) {
+      arraysFields.push({fieldName: fieldName, field: field});
+    }
+  });
+
+  _.each(_.omit(body, _.map(arraysFields, 'fieldName')), function(val, name) {
     item.set(name, val);
   });
 
+  arraysFields.forEach(function(arrayField) {
+    var arr = _.compact((body[arrayField.fieldName] || '').split(','));
+
+    item.set(arrayField.fieldName, arr);
+  });
   //_.each(originalImagesFields, function(field, fieldName) {
   //  if(_.isArray(field)) {
   //    if(field.length > 1) {

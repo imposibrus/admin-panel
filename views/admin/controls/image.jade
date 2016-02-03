@@ -6,7 +6,7 @@ div.form-group
     - var fieldName = field.sourceField || field.name;
     - var value = document.get(fieldName) || document[fieldName] || '';
     - if(value.id) value = value.id;
-    - if(_.isArray(value)) value = JSON.stringify(value.map(function(val) {return val.toObject();}))
+    - if(_.isArray(value)) value = _.map(value, 'id')
     - else if(typeof value === 'object') value = JSON.stringify(value.toObject ? [value.toObject()] : value);
     button(type="button").btn.btn-default.upload_btn
       span Обзор...
@@ -40,5 +40,10 @@ div.form-group
             .item
               img(src=documentValue[field.originalField], data-url=documentValue[field.originalField])
               .del_image x
+          else if _.isArray(documentValue)
+            for media in documentValue
+              .item.readerPreviewWrp.uploaded
+                img(src=media.url)
+                .del_preview x
   if hasHint
     .col-sm-3= field.hint

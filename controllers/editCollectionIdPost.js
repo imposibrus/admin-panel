@@ -24,9 +24,9 @@ module.exports = function(options) {
       });
     } else {
       options.models[modelConfig.model].findById(id).then(function(item) {
-        //item = prepareItem(req.body, item, modelConfig);
+        item = prepareItem(req.body, item, modelConfig);
 
-        return item.update(req.body).then(function(savedItem) {
+        return item.save().then(function(savedItem) {
           if(req.query.json) {
             res.send({status: 200, item: savedItem});
           } else {

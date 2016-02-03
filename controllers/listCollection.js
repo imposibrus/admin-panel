@@ -11,7 +11,7 @@ module.exports = function(options) {
     var modelConfig = _.find(options.adminConfig.collections, {name: collection});
     options.models[modelConfig.model].findAll({order: [/*['order', 'ASC'], */['createdAt', 'DESC']]}).then(function(collection) {
       return Promise.resolve(collection).map(function(document) {
-        return populateItem(document, modelConfig.populate, options.models);
+        return populateItem(document, modelConfig, options.models);
       }).then(function(populatedDocuments) {
         var templateName = 'list';
         if(modelConfig.templates && modelConfig.templates.list) {
