@@ -10,13 +10,27 @@ var Promise = require('bluebird'),
  */
 var populateItem = function populateItem(document, populate) {
   return new Promise(function(resolve, reject) {
-    if(!document.isNew && !_.isEmpty(populate)) {
-      document.populate(populate, function(err, populatedItem) {
-        if(err) {
-          return reject(err);
-        }
-        resolve(populatedItem);
-      });
+    if(!document.isNewRecord && !_.isEmpty(populate)) {
+      Promise.resolve(populate).map(function(modelName) {
+        return document['get' + modelName]().then(function(populated) {
+          var obj = {};
+          obj.modelName = modelName;
+          obj.value = populated;
+          return Promise.resolve(obj);
+        });
+      }).then(function(populated) {
+        populated.forEach(function(field) {
+          document[field.modelName] = field.value;
+          console.log('populated ', field.modelName, field.value, document[field.modelName]);
+        });
+        resolve(document);
+      }).catch(reject);
+      //document.populate(populate, function(err, populatedItem) {
+      //  if(err) {
+      //    return reject(err);
+      //  }
+      //  resolve(populatedItem);
+      //});
     } else {
       resolve(document);
     }

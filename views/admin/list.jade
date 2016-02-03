@@ -25,11 +25,11 @@ block content
           th= ++num
           for field in modelConfig.list.fields
             if field.field
-              if item.populated(field.field) && item[field.field]
-               td
-                 a(href='/admin/edit/' + field.populatedCollection + '/' + item[field.field].id, target="_blank")= item[field.field][field.populateField]
-              else
-               td!= item.get(field.field) || '---'
+              //if item.populated(field.field) && item[field.field]
+              // td
+              //   a(href='/admin/edit/' + field.populatedCollection + '/' + item[field.field].id, target="_blank")= item[field.field][field.populateField]
+              //else
+              td!= item.get(field.field) || '---'
             else if field.value
               td!= field.value.call(item)
           if modelConfig.list.fieldActions && modelConfig.list.fieldActions.length

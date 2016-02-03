@@ -9,40 +9,32 @@ module.exports = function(options) {
         modelConfig = _.find(options.adminConfig.collections, {name: collection});
 
     if(id == 'new') {
-      var newItem = new options.models[modelConfig.model]();
+      var newItem = options.models[modelConfig.model].build();
 
       newItem = prepareItem(req.body, newItem, modelConfig);
 
-      newItem.save(function(err, savedItem) {
-        if(err) {
-          return res.status(500).send({status: 500, err: err});
-        }
-
+      newItem.save().then(function(savedItem) {
         if(req.query.json) {
           res.send({status: 200, item: savedItem});
         } else {
           res.redirect('/admin/list/' + collection);
         }
+      }).catch(function(err) {
+        res.status(500).send({status: 500, err: err});
       });
     } else {
-      options.models[modelConfig.model].findById(id).exec(function(err, item) {
-        if(err) {
-          return res.status(500).send({status: 500, err: err});
-        }
+      options.models[modelConfig.model].findById(id).then(function(item) {
+        //item = prepareItem(req.body, item, modelConfig);
 
-        item = prepareItem(req.body, item, modelConfig);
-
-        item.save(function(err, savedItem) {
-          if(err) {
-            return res.status(500).send({status: 500, err: err});
-          }
-
+        return item.update(req.body).then(function(savedItem) {
           if(req.query.json) {
             res.send({status: 200, item: savedItem});
           } else {
             res.redirect('/admin/list/' + collection);
           }
         });
+      }).catch(function(err) {
+        res.status(500).send({status: 500, err: err});
       });
     }
   }

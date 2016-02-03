@@ -7,18 +7,10 @@ module.exports = function(options) {
         id = req.params.id,
         modelConfig = _.find(options.adminConfig.collections, {name: collection});
 
-    options.models[modelConfig.model].findById(id).exec(function(err, foundItem) {
-      if(err) {
-        return next(err);
-      }
-
-      foundItem.remove(function(err) {
-        if(err) {
-          return next(err);
-        }
-
+    options.models[modelConfig.model].findById(id).then(function(foundItem) {
+      return foundItem.destroy().then(function() {
         res.redirect('/admin/list/' + collection);
       });
-    });
+    }).catch(next);
   }
 };

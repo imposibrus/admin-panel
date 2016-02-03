@@ -6,7 +6,7 @@ var _ = require('lodash'),
  * Check if any of fields has options
  * property type of function and calculate it
  * @param {object} modelConfig - config object
- * @returns {Q.promise}
+ * @returns {Promise}
  */
 var calcOptions = function calcOptions(modelConfig) {
   var optionsPromises = [],

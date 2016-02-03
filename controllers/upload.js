@@ -49,10 +49,8 @@ module.exports = function(options) {
             return genImagePreviews(options);
           }).then(function(previewsObjects) {
             var resp = {};
-            resp[settings.originalField] = userUrl;
-            if(settings.pathField) {
-              resp[settings.pathField] = newFilePath;
-            }
+            resp[settings.originalField || 'url'] = userUrl;
+            resp[settings.pathField || 'path'] = newFilePath;
             if(!_.isEmpty(previewsObjects)) {
               resp.previews = {};
               previewsObjects.forEach(function(previewParams) {
@@ -71,7 +69,14 @@ module.exports = function(options) {
         });
       });
     }, {concurrency: 1}).then(function(files) {
-      res.send({status: 200, files: files});
+      var mainFields = ['path', 'name', 'mediaType'];
+      Promise.resolve(files).map(function(file) {
+        var newMedia = _.pick(file, mainFields);
+        newMedia.meta = _.omit(file, mainFields);
+        return options.models.Media.create(newMedia);
+      }, {concurrency: 1}).then(function(createdMedia) {
+        res.send({status: 200, files: files, media: createdMedia});
+      });
     }).catch(function(err) {
       logger.critical('trace', err);
       res.status(500).send({status: 500, err: err});

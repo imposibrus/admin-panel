@@ -10,7 +10,13 @@ var parseImages = function(body, modelConfig) {
   });
   imagesFields.forEach(function(imageField) {
     var newField = [],
-        jsonField = JSON.parse(body[imageField.fieldName]);
+        jsonField = {};
+
+    try {
+      jsonField = JSON.parse(body[imageField.fieldName]);
+    } catch(err) {
+      console.error(err.stack);
+    }
 
     if(_.isArray(jsonField)) {
       jsonField.forEach(function(image) {

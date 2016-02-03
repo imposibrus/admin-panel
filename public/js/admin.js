@@ -84,25 +84,13 @@ $(function() {
         };
       }
 
-      sendFiles(files, {settings: settings}, function(err, uploadedFiles) {
+      sendFiles(files, {settings: settings, folder: 'media'}, function(err, data) {
         if(err) {
           return alert('err!');
         }
 
-        if(settings.array) {
-          var oldVal,
-              newVal;
-
-          try {
-            oldVal = JSON.parse($text_input.val())
-          } catch(e) {
-            oldVal = [];
-          }
-          newVal = oldVal.concat(uploadedFiles);
-          $text_input.val(JSON.stringify(newVal));
-        } else {
-          $text_input.val(JSON.stringify(uploadedFiles));
-        }
+        var mediaArr = _.isArray(data.media) ? data.media : [data.media];
+        $text_input.val(_.map(mediaArr, 'id').join(''));
         if(settings.previews) {
           var smallestPreview = function(previews) {
             return Object.keys(previews).sort()[0];
@@ -111,8 +99,8 @@ $(function() {
           if(!settings.array) {
             $previews_list.find('.item').remove();
           }
-          if(_.isArray(uploadedFiles)) {
-            uploadedFiles.forEach(function(image) {
+          if(_.isArray(data.files)) {
+            data.files.forEach(function(image) {
               $previews_list.append([
                 '<div class="item">',
                   '<img src="'+ image.previews[smallestPreview(image.previews)].url +'" data-url="'+ image.url +'"/>',
@@ -123,7 +111,7 @@ $(function() {
           } else {
             $previews_list.append([
               '<div class="item">',
-                '<img src="'+ uploadedFiles.previews[smallestPreview(uploadedFiles.previews)].url +'" data-url="'+ uploadedFiles.url +'"/>',
+                '<img src="'+ data.files.previews[smallestPreview(data.files.previews)].url +'" data-url="'+ data.files.url +'"/>',
                 '<div class="del_image">x</div>',
               '</div>',
             ''].join(''));
@@ -178,6 +166,17 @@ $(function() {
     defaultDate: new Date()
   });
 
+  $('.datetimepicker').datetimepicker({
+    dateFormat: 'yy-mm-dd',
+    timeFormat: 'HH:mm:ss',
+    changeMonth: true,
+    changeYear: true,
+    yearRange: '2014:2050',
+    defaultDate: new Date(),
+    //addSliderAccess: true,
+    //sliderAccessArgs: { touchonly: false }
+  });
+
   $(document).on('click', '.postlink', function(e) {
     var $link = $(this);
     e.preventDefault();
@@ -222,7 +221,7 @@ var prepareClonedInput = function($input) {
 var sendFiles = function(files, options, callback) {
   if(!callback && typeof options === 'function') {
     callback = options;
-    options = null;
+    options = {};
   }
   if(typeof callback !== 'function') {
     return false;
@@ -232,7 +231,7 @@ var sendFiles = function(files, options, callback) {
       formData = new FormData(),
       defer = $.Deferred(),
       urlQuery = {
-        folder: collection,
+        folder: options.folder || collection,
         settings: options.settings
       },
       url = '/admin/upload?' + $.param(urlQuery);
@@ -253,18 +252,10 @@ var sendFiles = function(files, options, callback) {
     type: 'POST',
     success: function (data) {
       if(data.status == 200 && data.files) {
-        if(options.settings.array) {
-          if(_.isArray(data.files) && data.files.length > 1) {
-            defer.resolve(data.files);
-          } else {
-            defer.resolve(data.files[0]);
-          }
+        if(_.isArray(data.files) && data.files.length > 1) {
+          defer.resolve({files: data.files, media: data.media});
         } else {
-          if(_.isArray(data.files) && data.files.length > 1) {
-            defer.resolve(data.files);
-          } else {
-            defer.resolve(data.files[0]);
-          }
+          defer.resolve({files: data.files[0], media: data.media[0]});
         }
       } else {
         alert('Что-то пошло не так, отругайте программиста');

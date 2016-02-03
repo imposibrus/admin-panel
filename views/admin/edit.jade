@@ -1,7 +1,7 @@
 
 extends layout
 block content
-   form(action="/admin/edit/" + modelConfig.name + "/" + (item.isNew ? 'new' : item.id), method="POST", data-collection=modelConfig.name).form-horizontal.admin_form
+   form(action="/admin/edit/" + modelConfig.name + "/" + (item.isNewRecord ? 'new' : item.id), method="POST", data-collection=modelConfig.name).form-horizontal.admin_form
       | !{controlsHTML.join('')}
 
       div.form-group
