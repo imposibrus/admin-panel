@@ -3,7 +3,16 @@ div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
-    input(type=(field.type || 'text'), step="any", name=field.name, value!=field.value, id=field.id, class!=field.class, required=field.required)
+    input(
+      type=(field.type || 'text'),
+      step="any",
+      name=field.name,
+      value!=field.value,
+      id=field.id,
+      class!=field.class,
+      required=field.required,
+      placeholder=field.placeholder
+    )
   if hasHint
     .col-sm-3= field.hint
 

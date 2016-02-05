@@ -1,6 +1,6 @@
 {
   "name": "admin-panel",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Admin-panel for projects based on Express.js and Mongoose.",
   "keywords": [
     "admin",
