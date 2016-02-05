@@ -19,7 +19,7 @@ $(function() {
       ["advlist anchor autolink autosave charmap code colorpicker contextmenu"],
       ["directionality emoticons fullscreen hr image importcss insertdatetime"],
       ["link lists media nonbreaking pagebreak paste print preview save searchreplace"],
-      ["spellchecker table template textcolor wordcount visualblocks visualchars"]
+      ["spellchecker table template textcolor wordcount visualblocks visualchars ibrowser"]
     ],
     toolbar1: 'insertfile undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | fontselect fontsizeselect',
     toolbar2: 'cut copy paste | blockquote removeformat subscript superscript | link image | print preview media | forecolor backcolor emoticons | code'

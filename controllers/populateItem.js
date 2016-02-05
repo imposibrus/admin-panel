@@ -20,6 +20,9 @@ var populateItem = function populateItem(document, modelConfig, models) {
           return Promise.resolve(obj);
         });
       }).then(function(populated) {
+        if(!modelConfig.populateArrays) {
+          return Promise.resolve(populated);
+        }
         return Promise.resolve(modelConfig.populateArrays).map(function(field) {
           return Promise.resolve(document[field.field] || []).map(function(id) {
             return models[field.model].findById(id);
@@ -28,12 +31,14 @@ var populateItem = function populateItem(document, modelConfig, models) {
             return Promise.resolve(document);
           });
         }).then(function() {
-          populated.forEach(function(field) {
-            document[field.modelName] = field.value;
-            //console.log('populated ', field.modelName, field.value, document[field.modelName]);
-          });
-          resolve(document);
+          return Promise.resolve(populated);
         });
+      }).then(function(populated) {
+        populated.forEach(function(field) {
+          document[field.modelName] = field.value;
+          //console.log('populated ', field.modelName, field.value, document[field.modelName]);
+        });
+        resolve(document);
       }).catch(reject);
       //document.populate(populate, function(err, populatedItem) {
       //  if(err) {

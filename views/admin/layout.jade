@@ -25,6 +25,34 @@ html
     script.
       (function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document);
 
+    script(type="text/template", id="files_list_template").
+      <div class="files_list_wrp">
+        <div class="navigation">
+          <% if(!isRoot){ %>
+            <a href="#" class="back">Back</a>
+          <% } %>
+        </div>
+        <div class="files_list">
+          <% files.forEach(function(file) { %>
+            <div class="item" data-type="<%= file.type %>" data-file-path="<%= file.path %>">
+              <div class="icon <%= file.type %>">
+                <% if(file.fileType == 'image'){ %>
+                  <img src="<%= file.path %>" class="image_preview">
+                <% } %>
+              </div>
+              <div class="title"><%= file.name %></div>
+            </div>
+          <% }); %>
+        </div>
+        <div class="upload_wrp">
+          <button class="btn btn-success upload_image" type="button">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <span>Загрузить</span>
+            <input type="file" class="file_input" multiple="multiple"/>
+          </button>
+        </div>
+      </div>
+
     script(src="/admin/public/bower_components/jquery-ui/ui/core.js")
     script(src="/admin/public/bower_components/jquery-ui/ui/widget.js")
     script(src="/admin/public/bower_components/jquery-ui/ui/mouse.js")
