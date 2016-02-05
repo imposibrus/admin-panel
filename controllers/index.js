@@ -6,6 +6,7 @@ module.exports = {
   editCollectionIdGet: require('./editCollectionIdGet'),
   editCollectionIdPost: require('./editCollectionIdPost'),
   deleteCollectionId: require('./deleteCollectionId'),
-  upload: require('./upload')
+  upload: require('./upload'),
+  getFilesList: require('./getFilesList')
 };
 

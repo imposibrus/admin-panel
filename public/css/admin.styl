@@ -130,3 +130,89 @@
   }
 }
 
+.files_list {
+  user-select none
+  .item {
+    display: inline-block
+    vertical-align: top
+    width: 120px
+    height: 120px
+    text-align: center
+    cursor: pointer
+    position: relative
+    overflow: hidden
+    margin: 5px
+    &:hover {
+      box-shadow 0 0 0 3px #659dff
+    }
+    .icon {
+      width: 100px
+      height: 100px
+      display: inline-block
+      text-align: center
+      line-height: 100px
+      &.dir {
+        background-color: #ff2
+      }
+      &.file {
+        /*background-color: #4047ff*/
+      }
+      .image_preview {
+        vertical-align: middle;
+        max-height: 77px;
+        max-width: 100px;
+        margin-top: -5px;
+      }
+    }
+    .title {
+      text-align: center
+    }
+  }
+}
+
+.upload_wrp {
+  .upload_image {
+    position: relative
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 4px;
+    color: #FFF;
+    background-color: #5CB85C;
+    background-image: linear-gradient(to bottom,#5CB85C 0,#419641 100%);
+    background-repeat: repeat-x;
+    border-color: #3E8F3E;
+    &:hover {
+      color: #FFF;
+      border-color: #398439;
+      background-color: #419641;
+      background-position: 0 -15px;
+    }
+    span {
+      color: inherit
+    }
+    .file_input {
+      opacity: 0
+      position: absolute
+      cursor: pointer
+      right: 0
+      top: 0
+      height: 100%
+    }
+  }
+  .glyphicon {
+    position: relative;
+    font-family: 'Glyphicons Halflings';
+    font-weight: 400;
+    line-height: 1;
+  }
+}

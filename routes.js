@@ -57,5 +57,7 @@ module.exports = function(options) {
 
   router.post('/upload', controllers.upload);
 
+  router.get('/filesList', controllers.getFilesList);
+
   return router;
 };

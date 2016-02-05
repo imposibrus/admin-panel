@@ -10,7 +10,7 @@ var path = require('path'),
 module.exports = function(options) {
   return function(req, res) {
     var uploadFolderPath = path.join(options.storagePath, req.query.folder),
-        settings = req.query.settings,
+        settings = req.query.settings || {},
         previews = settings.previews || {};
 
     if(!fs.existsSync(uploadFolderPath)) {
