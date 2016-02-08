@@ -4,7 +4,7 @@ div.form-group
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
     - var fieldName = field.sourceField || field.name;
-    - var value = document.get(fieldName) || document[fieldName] || '';
+    - var value = document.get(fieldName) || document[fieldName] || '0';
     - if(value.id) value = value.id;
     - if(_.isArray(value)) value = _.map(value, 'id')
     - else if(typeof value === 'object') value = JSON.stringify(value.toObject ? [value.toObject()] : value);
