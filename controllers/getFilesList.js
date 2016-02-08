@@ -5,9 +5,8 @@ var path = require('path'),
     sortFiles = require('./sortFiles');
 
 module.exports = function getFilesList(options) {
-  //var storagePath = path.join(__dirname, 'storage');
   return function getFilesListMiddleware(req, res, next) {
-    var folder = _.without(_.compact(req.query.folder.split('/')), 'storage').join('/');
+    var folder = _.compact(req.query.folder.split('/')).join('/');
 
     getAllInDir(path.join(options.storagePath, folder), options.storagePath).done(function(filesStats) {
       var isRoot = folder ? false : true;

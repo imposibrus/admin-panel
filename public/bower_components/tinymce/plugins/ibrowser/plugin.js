@@ -1,6 +1,4 @@
 
-
-
 var sendFiles = function(files, options, callback) {
   if(!callback && typeof options === 'function') {
     callback = options;
@@ -68,7 +66,7 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
   editor.settings.file_browser_callback = function(id, value, type, win) {
     //console.log(arguments);
     var currPath = [];
-    $.get('/admin/filesList', {folder: '/storage'}, function(data) {
+    $.get('/admin/filesList', {folder: '/'}, function(data) {
       var treePanel = {
         type: 'container',
         minHeight: 500,
@@ -89,7 +87,6 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
         ]
       });
 
-      currPath.push('storage');
       var filesListClickHandler = function() {
         var $item = $(this);
 
@@ -104,7 +101,7 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
             window.close();
           });
         } else if($item.data('type') == 'dir') {
-          $.get('/admin/filesList', {folder: '/storage/' + $item.find('.title').text()}, function(data) {
+          $.get('/admin/filesList', {folder: '/' + $item.find('.title').text()}, function(data) {
             $modalElem.find('.files_list_wrp').replaceWith(filesListTemplate(data));
             currPath.push($item.find('.title').text());
           });
@@ -116,12 +113,10 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
       $modalElem.off('click', '.files_list .item', filesListClickHandler);
       $modalElem.on('click', '.files_list .item', filesListClickHandler);
       $modalElem.on('click', '.files_list_wrp .navigation .back', function() {
-        if(currPath.length > 1) {
-          currPath.splice(-1, 1);
-          $.get('/admin/filesList', {folder: currPath.join('/')}, function(data) {
-            $modalElem.find('.files_list_wrp').replaceWith(filesListTemplate(data));
-          });
-        }
+        currPath.splice(-1, 1);
+        $.get('/admin/filesList', {folder: currPath.join('/')}, function(data) {
+          $modalElem.find('.files_list_wrp').replaceWith(filesListTemplate(data));
+        });
       });
 
       $modalElem.on('change', 'input[type="file"]', function() {
@@ -132,7 +127,7 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
           return;
         }
 
-        sendFiles(files, {folder: '/media'}, function(err/*, data*/) {
+        sendFiles(files, {folder: currPath.join('/')}, function(err/*, data*/) {
           if(err) {
             return alert('err!');
           }
@@ -146,5 +141,3 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
   };
 
 });
-
-
