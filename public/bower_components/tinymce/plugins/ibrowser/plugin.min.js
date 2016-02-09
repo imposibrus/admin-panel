@@ -92,7 +92,7 @@ tinymce.PluginManager.add('ibrowser', function(editor, url) {
 
         if($item.data('type') == 'file') {
           var data = {
-            src: $item.data('filePath')
+            src: '//' + document.location.host + $item.data('filePath')
           };
           editor.focus();
           editor.selection.setContent(editor.dom.createHTML('img', data));
