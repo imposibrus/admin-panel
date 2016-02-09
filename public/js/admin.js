@@ -106,7 +106,7 @@ $(function() {
           } catch(e) {
             oldVal = [];
           }
-          newVal = _.compact(oldVal.concat(uploadedIds));
+          newVal = _.without(_.compact(oldVal.concat(uploadedIds)), 0, '0');
           $text_input.val(newVal.join(','));
         } else {
           $text_input.val(uploadedIds.join(','));
