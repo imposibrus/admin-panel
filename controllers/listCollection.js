@@ -7,9 +7,15 @@ var path = require('path'),
 
 module.exports = function(options) {
   return function(req, res, next) {
-    var collection = req.params.collection;
-    var modelConfig = _.find(options.adminConfig.collections, {name: collection});
-    options.models[modelConfig.model].findAll({order: [/*['order', 'ASC'], */['createdAt', 'DESC']]}).then(function(collection) {
+    var collection = req.params.collection,
+        modelConfig = _.find(options.adminConfig.collections, {name: collection}),
+        order = [['createdAt', 'DESC']];
+
+    if(modelConfig.hasSorting) {
+      order.unshift(['order', 'ASC']);
+    }
+
+    options.models[modelConfig.model].findAll({order: order}).then(function(collection) {
       return Promise.resolve(collection).map(function(document) {
         return populateItem(document, modelConfig, options.models);
       }).then(function(populatedDocuments) {

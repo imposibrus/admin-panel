@@ -7,12 +7,23 @@ block content
   ul#sortable
     for item in collection
       //li.ui-state-default(data-order=(item.order || ''), data-num=item.num)!= (item.title || applyFilter(item.image, 'image') || applyFilter(item.images.thumbnail, 'image'))
-      li.ui-state-default(data-order=(item.order || ''), data-id=item.id)!= (item.title)
+      li.ui-state-default(data-order=(item.order || ''), data-id=item.id)!= item.viewForSort
 
 
   style.
-    #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
-    #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; }
+    #sortable {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      width: 60%;
+    }
+
+    #sortable li {
+      margin: 0 3px 3px 3px;
+      padding: 0.4em;
+      padding-left: 1.5em;
+      font-size: 1.4em;
+    }
 
 
   script.
@@ -24,7 +35,7 @@ block content
       $(document).on('click', '.save_sort', function () {
         var $list = $('#sortable'), arr = {};
         $list.find('li').each(function () {
-          arr[$(this).data('id')] = $(this).index();
+          arr[$(this).index()] = $(this).data('id');
         });
         $.post(document.location.pathname, {sort: arr}, function (data) {
           if(data.status == 200) {
@@ -32,7 +43,9 @@ block content
               window.opener.location.reload();
               window.close();
             } else {
-              history.back();
+              var locationPathArr = document.location.pathname.split('/');
+              locationPathArr.splice(-2, 1, 'list');
+              document.location.pathname = locationPathArr.join('/');
             }
           }
         });
