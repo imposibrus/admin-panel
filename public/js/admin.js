@@ -213,6 +213,14 @@ $(function() {
     var $link = $(this);
     e.preventDefault();
     $.post($link.attr('href'), $link.data('postdata')).done(function() {
+      if(!$link.data('reload')) {
+        return notySuccess($link.data('successText') || 'Успех');
+      }
+      document.location.reload();
+    }).fail(function() {
+      if(!$link.data('reload')) {
+        return notySuccess($link.data('failText') || 'Неудача');
+      }
       document.location.reload();
     });
   });
