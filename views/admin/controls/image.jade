@@ -28,9 +28,10 @@ div.form-group
             - var previewName = Object.keys(field.previews)[0];
             if _.isArray(documentValue)
               for image in documentValue
-                if image.previews[previewName].url
+                - var previews = image.previews || (image.meta ? image.meta.previews : []);
+                if previews && previews[previewName]
                   .item
-                    img(src=image.previews[previewName].url, data-url=image[field.originalField])
+                    img(src=previews[previewName].url, data-url=image[field.originalField])
                     .del_image x
             else if documentValue.meta.previews && documentValue.meta.previews[previewName].url
               .item
