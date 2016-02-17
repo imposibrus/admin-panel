@@ -2,20 +2,14 @@
 var path = require('path'),
     _ = require('lodash');
 
-//console.log('select.js');
 module.exports = function(res, field, document, cb) {
-  //console.log('select.js field', field);
-  var optionsField = field.calculatedOptions ? 'calculatedOptions' : 'options';
-  var options = _.result(field, optionsField);
+  var optionsField = field.calculatedOptions ? 'calculatedOptions' : 'options',
+      options = _.result(field, optionsField),
+      defaultOption = _.find(options, 'default') || (field.default ? {title: field.default, val: field.default} : undefined);
 
-  //console.log('options', options);
-  //if(options.then) {
-  //  console.log('has options.then');
-  //  options.then(function(options) {
-  //    console.log('options.then completed', arguments);
-  //    res.render(path.join(__dirname, 'select'), {field: field, document: document, options: options}, cb);
-  //  }).catch(cb);
-  //} else {
-    res.render(path.join(__dirname, 'select'), {field: field, document: document, options: options}, cb);
-  //}
+  if(defaultOption) {
+    options = _.reject(options, defaultOption);
+  }
+
+  res.render(path.join(__dirname, 'select'), {field: field, document: document, options: options, defaultOption: defaultOption}, cb);
 };

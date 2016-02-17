@@ -4,8 +4,8 @@ div.form-group
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
     select(name=field.name, id=field.id, class!=field.class, required=field.required)
-      if typeof field.default !== 'undefined'
-        option(value=field.default)= field.default
+      if typeof defaultOption !== 'undefined'
+        option(value=defaultOption.val)= defaultOption.title
       else
         option() ---
       for value in options
