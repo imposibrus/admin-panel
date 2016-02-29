@@ -3,6 +3,6 @@ div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   - var hasHint = !!field.hint;
   div(class="col-sm-" + (hasHint ? '7' : '10'))
-    textarea(name=field.name, id=field.id, class!=field.class, required=field.required)!= humanize.nl2br(field.value)
+    textarea(name=field.name, id=field.id, class!=field.class, required=field.required)!= field.value
   if hasHint
     .col-sm-3= field.hint
