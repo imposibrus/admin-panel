@@ -1,4 +1,3 @@
-
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
   - var hasHint = !!field.hint;
@@ -8,7 +7,7 @@ div.form-group
     - if(value.id) value = value.id;
     - if(_.isArray(value)) value = _.map(value, 'id')
     - else if(typeof value === 'object') value = JSON.stringify(value.toObject ? [value.toObject()] : value);
-    .btn.btn-default.upload_btn
+    div(class="btn btn-default upload_btn #{field.required ? 'required' : ''}")
       span Обзор...
       input(
         class!=[field.class, 'image_field'].join(' '),
@@ -31,15 +30,15 @@ div.form-group
                 - var previews = image.previews || (image.meta ? image.meta.previews : []);
                 if previews && previews[previewName]
                   .item
-                    img(src=previews[previewName].url, data-url=image[field.originalField])
+                    img(src=previews[previewName].url, data-id=image.id)
                     .del_image x
             else if documentValue.meta.previews && documentValue.meta.previews[previewName].url
               .item
-                img(src=documentValue.meta.previews[previewName].url, data-url=documentValue[field.originalField])
+                img(src=documentValue.meta.previews[previewName].url, data-id=image.id)
                 //.del_image x
           else if documentValue[field.originalField]
             .item
-              img(src=documentValue[field.originalField], data-url=documentValue[field.originalField])
+              img(src=documentValue[field.originalField], data-id=image.id)
               .del_image x
           else if _.isArray(documentValue)
             for media in documentValue

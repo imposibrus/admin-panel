@@ -61,6 +61,7 @@ $(function() {
 
     $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
         .removeAttr('id')
+        .removeAttr('required')
         .attr('name', 'file_' + $this.attr('name'))
         .removeClass('image_field')
         .attr('value', '');
@@ -119,11 +120,11 @@ $(function() {
           if(!settings.array) {
             $previews_list.find('.item').remove();
           }
-          if(_.isArray(data.files)) {
-            data.files.forEach(function(image) {
+          if(_.isArray(data.media)) {
+            data.media.forEach(function(media) {
               $previews_list.append([
                 '<div class="item">',
-                  '<img src="'+ image.previews[smallestPreview(image.previews)].url +'" data-url="'+ image.url +'"/>',
+                  '<img src="'+ media.meta.previews[smallestPreview(media.meta.previews)].url +'" data-id="'+ media.id +'"/>',
                   '<div class="del_image">x</div>',
                 '</div>',
               ''].join(''));
@@ -131,7 +132,7 @@ $(function() {
           } else {
             $previews_list.append([
               '<div class="item">',
-                '<img src="'+ data.files.previews[smallestPreview(data.files.previews)].url +'" data-url="'+ data.files.url +'"/>',
+                '<img src="'+ data.media.meta.previews[smallestPreview(data.media.meta.previews)].url +'" data-id="'+ data.media.id +'"/>',
                 '<div class="del_image">x</div>',
               '</div>',
             ''].join(''));
@@ -182,11 +183,13 @@ $(function() {
     var $this = $(this),
         $img = $this.siblings('img'),
         $input = $this.closest('.previews_list').siblings('.upload_btn').find('.image_field'),
-        inputVal = JSON.parse($input.val()),
-        originalUrl = $img.data('url'),
-        newVal = _.reject(inputVal, {url: originalUrl});
+        imageId = $img.data('id'),
+        inputVal = _($input.val().split(',')).map(_.trim).map(function(id) {return parseInt(id, 10);}).value(),
+        newVal = _.reject(inputVal, function(id) {
+          return id == imageId;
+        });
 
-    $input.attr('value', JSON.stringify(newVal));
+    $input.attr('value', newVal);
     $this.closest('.item').remove();
   });
 
@@ -244,6 +247,22 @@ $(function() {
   $(document).on('click', '.delete', function() {
     if(!confirm('Вы уверены?')) {
       return false;
+    }
+  });
+
+  $(document).on('submit', '.admin_form', function() {
+    var $upload_btn = $(this).find('.upload_btn');
+    if($upload_btn.is('.required')) {
+      var uploadIds = $upload_btn.find('.image_field').val().split(',').map(function(id) {
+        return parseInt(id.trim(), 10);
+      }).filter(function(id) {
+        return id > 0;
+      });
+
+      if(!uploadIds.length) {
+        notyError('Загрузите как минимум одно изображение');
+        return false;
+      }
     }
   });
 

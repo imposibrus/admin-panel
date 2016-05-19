@@ -3,7 +3,8 @@ var path = require('path'),
     express = require('express'),
     router = express.Router(),
     controllers = require('./controllers'),
-    viewsFolder = path.resolve(__dirname, 'views');
+    viewsFolder = path.resolve(__dirname, 'views'),
+    packageJSON = require('./package.json');
 
 module.exports = function(options) {
   if(!options.models || !options.adminConfig) {
@@ -17,6 +18,13 @@ module.exports = function(options) {
   // TODO: custom views
 
   router.use('/public', express.static(path.resolve(__dirname, 'public')));
+
+  router.use(function(req, res, next) {
+    res.locals.adminPanel = {
+      version: packageJSON.version
+    };
+    next();
+  });
 
   router.get('/logout', function(req, res) {
     req.session.destroy(function() {
