@@ -8,7 +8,7 @@ div.form-group
     - if(value.id) value = value.id;
     - if(_.isArray(value)) value = _.map(value, 'id')
     - else if(typeof value === 'object') value = JSON.stringify(value.toObject ? [value.toObject()] : value);
-    button(type="button").btn.btn-default.upload_btn
+    .btn.btn-default.upload_btn
       span Обзор...
       input(
         class!=[field.class, 'image_field'].join(' '),
