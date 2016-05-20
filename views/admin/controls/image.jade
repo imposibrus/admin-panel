@@ -34,11 +34,11 @@ div.form-group
                     .del_image x
             else if documentValue.meta.previews && documentValue.meta.previews[previewName].url
               .item
-                img(src=documentValue.meta.previews[previewName].url, data-id=image.id)
+                img(src=documentValue.meta.previews[previewName].url, data-id=documentValue.id)
                 //.del_image x
           else if documentValue[field.originalField]
             .item
-              img(src=documentValue[field.originalField], data-id=image.id)
+              img(src=documentValue[field.originalField], data-id=documentValue.id)
               .del_image x
           else if _.isArray(documentValue)
             for media in documentValue
