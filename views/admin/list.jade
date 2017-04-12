@@ -31,7 +31,7 @@ block content
               //else
               td!= item.get(field.field) || '---'
             else if field.value
-              td!= field.value.call(item)
+              td!= field.value.call(item, item)
           if modelConfig.list.fieldActions && modelConfig.list.fieldActions.length
             td
               +genFieldActions(modelConfig.list.fieldActions, item)

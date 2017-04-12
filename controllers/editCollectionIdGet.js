@@ -19,7 +19,7 @@ module.exports = function(options) {
               .then(function(populatedDocument) {
                 return calcOptions(modelConfig).then(function() {
                   return [
-                    renderControls(res, modelConfig, populatedDocument),
+                    renderControls(res, modelConfig, populatedDocument, options),
                     populatedDocument
                   ];
                 });

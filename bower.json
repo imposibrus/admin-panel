@@ -21,12 +21,9 @@
     "bootstrap": "~3.3.0",
     "lodash": "~3.6.0",
     "jquery.ui": "~1.11.4",
-    "tinymce": "~4.1.9",
+    "tinymce": "~4.5.6",
     "noty": "~2.3.7",
     "jquery-ui": "jquery.ui#~1.11.4",
     "jqueryui-timepicker-addon": "^1.6.1"
-  },
-  "resolutions": {
-    "tinymce": "~4.3.1"
   }
 }

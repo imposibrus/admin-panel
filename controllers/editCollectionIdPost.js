@@ -8,13 +8,13 @@ module.exports = function(options) {
         id = req.params.id,
         modelConfig = _.find(options.adminConfig.collections, {name: collection});
 
-    if(id == 'new') {
+    if (id === 'new') {
       var newItem = options.models[modelConfig.model].build();
 
       newItem = prepareItem(req.body, newItem, modelConfig);
 
       newItem.save().then(function(savedItem) {
-        if(req.query.json) {
+        if (req.query.json) {
           res.send({status: 200, item: savedItem});
         } else {
           res.redirect('/admin/list/' + collection);
@@ -27,7 +27,7 @@ module.exports = function(options) {
         item = prepareItem(req.body, item, modelConfig);
 
         return item.save().then(function(savedItem) {
-          if(req.query.json) {
+          if (req.query.json) {
             res.send({status: 200, item: savedItem});
           } else {
             res.redirect('/admin/list/' + collection);
