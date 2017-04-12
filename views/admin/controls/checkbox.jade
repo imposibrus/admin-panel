@@ -1,12 +1,17 @@
 
 div.form-group
   label(for=field.id, class="col-sm-2 control-label")= field.label
+
   - var hasHint = !!field.hint;
+  - var checked = document.isNewRecord ? !!field.default : !!field.value;
+  - var value = checked ? 1 : 0;
+
   div(class="col-sm-" + (hasHint ? '7' : '10'))
     div(class="checkbox")
       label
-        input(type="checkbox", id=field.id, checked=(field.value || field.default), required=field.required).form_checkbox
+        input(type="checkbox", id=field.id, checked=checked, required=field.required).form_checkbox
         | #{field.caption}
-        input(type="hidden", name=field.name, value=(field.value || field.default)).hidden_checkbox
+        input(type="hidden", name=field.name, value=value).hidden_checkbox
+
   if hasHint
     .col-sm-3= field.hint
