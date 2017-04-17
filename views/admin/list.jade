@@ -41,7 +41,7 @@ block content
 
   if modelConfig.list.listActions && modelConfig.list.listActions.length
     for listAction in modelConfig.list.listActions
-      != listAction.html(modelConfig.name)
+      != listAction.html(modelConfig)
   else if adminConfig.listActions.length && modelConfig.list.listActions !== false
     for listAction in adminConfig.listActions
-      != listAction.html(modelConfig.name)
+      != listAction.html(modelConfig)
