@@ -92,7 +92,9 @@ $(function() {
 
       sendFiles(files, {settings: settings, folder: 'media'}, function(err, data) {
         if(err) {
-          return alert('err!');
+          notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
+          $previews_list.find('.readerPreviewWrp').remove();
+          return;
         }
 
         var mediaArr = _.isArray(data.media) ? data.media : [data.media],
@@ -107,19 +109,24 @@ $(function() {
           } catch(e) {
             oldVal = [];
           }
+
           newVal = _.without(_.compact(oldVal.concat(uploadedIds)), 0, '0');
           $text_input.val(newVal.join(','));
         } else {
           $text_input.val(uploadedIds.join(','));
         }
+
         if(settings.previews) {
           var smallestPreview = function(previews) {
             return Object.keys(previews).sort()[0];
           };
+
           $previews_list.find('.readerPreviewWrp').remove();
+
           if(!settings.array) {
             $previews_list.find('.item').remove();
           }
+
           if(_.isArray(data.media)) {
             data.media.forEach(function(media) {
               $previews_list.append([
@@ -166,6 +173,11 @@ $(function() {
     drop: function(e) {
       var $this = $(this);
       sendFiles(e.originalEvent.dataTransfer.files, $this.find('input[type="file"]').data('settings'), function(err, paths) {
+        if(err) {
+          notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
+          return;
+        }
+
         $this.find('input[type="text"]').val(paths);
       });
       return false;
@@ -282,9 +294,11 @@ var sendFiles = function(files, options, callback) {
     callback = options;
     options = {};
   }
+
   if(typeof callback !== 'function') {
     return false;
   }
+
   var collection = $('.admin_form').data('collection'),
       filesArray = Array.prototype.slice.call(files),
       formData = new FormData(),
@@ -298,6 +312,7 @@ var sendFiles = function(files, options, callback) {
   filesArray.forEach(function(file, index) {
     formData.append('file_' + index, file);
   });
+
   if(options.name) {
     formData.append('name', options.name);
   }
@@ -310,28 +325,35 @@ var sendFiles = function(files, options, callback) {
     cache: false,
     type: 'POST',
     success: function (data) {
-      if(data.status == 200 && data.files) {
+      if(data.status === 200 && data.files) {
         if(_.isArray(data.files) && data.files.length > 1) {
           defer.resolve({files: data.files, media: data.media});
         } else {
           defer.resolve({files: data.files[0], media: data.media[0]});
         }
       } else {
-        alert('Что-то пошло не так, отругайте программиста');
+        defer.reject(data);
       }
+    },
+    error: function(jQxhr) {
+      defer.reject(jQxhr.responseJSON || jQxhr.responseText);
     }
   };
 
   if(options.progress) {
     options.progress.progress({percent: 0});
+
     ajaxOptions.xhr = function() {
       var xhr = new window.XMLHttpRequest();
+
       xhr.upload.addEventListener("progress", function(evt) {
         if(evt.lengthComputable) {
           var percent = parseInt((evt.loaded / evt.total) * 100);
+
           options.progress.progress({percent: percent});
         }
       }, false);
+
       return xhr;
     };
   }
@@ -340,8 +362,5 @@ var sendFiles = function(files, options, callback) {
 
   defer.then(function(uploadedFiles) {
     callback(null, uploadedFiles);
-  }).fail(function(err) {
-    notyError(err);
-    callback(err);
-  });
+  }).fail(callback);
 };

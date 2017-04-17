@@ -21,6 +21,8 @@ function getInternetExplorerVersion() {
 
 var IEVersion = getInternetExplorerVersion();
 
+$.noty.defaults.layout = 'top';
+
 var notySuccess = function(text) {
       noty({
         type: 'success',

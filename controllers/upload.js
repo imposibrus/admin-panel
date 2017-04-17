@@ -70,12 +70,14 @@ module.exports = function(options) {
       });
     }, {concurrency: 1}).then(function(files) {
       var mainFields = ['path', 'name', 'mediaType'];
-      Promise.resolve(files).map(function(file) {
+      return Promise.resolve(files).map(function(file) {
         var newMedia = _.pick(file, mainFields);
         newMedia.meta = _.omit(file, mainFields);
         return options.models.Media.create(newMedia);
       }, {concurrency: 1}).then(function(createdMedia) {
-        res.send({status: 200, files: files, media: createdMedia});
+        res.send({status: 200, files: files, media: createdMedia.map(function(media) {
+          return media.get({plain: true});
+        })});
       });
     }).catch(function(err) {
       logger.critical('trace', err);
