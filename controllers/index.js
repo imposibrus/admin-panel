@@ -10,3 +10,20 @@ module.exports = {
   getFilesList: require('./getFilesList')
 };
 
+/**
+ * @typedef {Object} ModelConfig
+ * @property {Object} fields
+ * @property {String[]} populate
+ * @property {PopulateArray[]} populateArrays
+ */
+
+/**
+ * @typedef {Object} PopulateArray
+ * @property {String} field Field name for saving result
+ * @property {String} model Model name
+ */
+
+/**
+ * @typedef {Object} Document
+ * @property {Boolean} isNewRecord
+ */

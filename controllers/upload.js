@@ -17,8 +17,9 @@ module.exports = function(options) {
       mkdirp.sync(uploadFolderPath);
     }
 
-    Promise.resolve(Object.keys(req.files)).map(function(fileName) {
+    Promise.resolve(Object.keys(req.files)).mapSeries(function(fileName) {
       var file = req.files[fileName];
+
       return new Promise(function(resolve, reject) {
         var userFolder = '/public/storage/' + req.query.folder,
             newFilename = file.hash + path.extname(file.name),
@@ -34,7 +35,7 @@ module.exports = function(options) {
             }
           });
 
-          Promise.resolve(Object.keys(previews)).map(function(preview) {
+          Promise.resolve(Object.keys(previews)).mapSeries(function(preview) {
             var previewParams = previews[preview],
                 previewName = newFilename.replace(
                     file.hash, file.hash + '_preview'+ previewParams.width +'x'+ previewParams.height
@@ -49,8 +50,10 @@ module.exports = function(options) {
             return genImagePreviews(options);
           }).then(function(previewsObjects) {
             var resp = {};
+
             resp[settings.originalField || 'url'] = userUrl;
             resp[settings.pathField || 'path'] = newFilePath;
+
             if(!_.isEmpty(previewsObjects)) {
               resp.previews = {};
               previewsObjects.forEach(function(previewParams) {
@@ -59,22 +62,19 @@ module.exports = function(options) {
             }
 
             resolve(resp);
-          }).catch(function(err) {
-            logger.critical('trace', err);
-            reject(err);
-          });
-        }).on('error', function(err) {
-          logger.critical('trace', err);
-          res.status(500).send({status: 500, err: err});
-        });
+          }).catch(reject);
+        }).on('error', reject);
       });
-    }, {concurrency: 1}).then(function(files) {
+    }).then(function(files) {
       var mainFields = ['path', 'name', 'mediaType'];
-      return Promise.resolve(files).map(function(file) {
+
+      return Promise.resolve(files).mapSeries(function(file) {
         var newMedia = _.pick(file, mainFields);
+
         newMedia.meta = _.omit(file, mainFields);
+
         return options.models.Media.create(newMedia);
-      }, {concurrency: 1}).then(function(createdMedia) {
+      }).then(function(createdMedia) {
         res.send({status: 200, files: files, media: createdMedia.map(function(media) {
           return media.get({plain: true});
         })});

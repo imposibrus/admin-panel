@@ -8,29 +8,32 @@ var _ = require('lodash'),
  * @param {object} modelConfig - config object
  * @returns {Promise}
  */
-var calcOptions = function calcOptions(modelConfig) {
-  var optionsPromises = [],
-      calculate = function(field) {
-        return new Promise(function(resolve, reject) {
-          field.options(function(err, options) {
-            if(err) {
-              return reject(err);
-            }
-            field.calculatedOptions = options;
-            resolve();
-          });
-        });
-      };
+function calcOptions(modelConfig) {
+    var optionsPromises = [],
+        calculate = function(field) {
+            return new Promise(function(resolve, reject) {
+                field.options(function(err, options) {
+                    if (err) {
+                        return reject(err);
+                    }
 
-  _.each(modelConfig.fields, function(field) {
-    if(field.options && typeof field.options == 'function') {
-      optionsPromises.push(calculate(field));
-    }
-    if(field._nestedSchema && field._nestedSchema.fields) {
-      optionsPromises.push(calcOptions(field._nestedSchema));
-    }
-  });
-  return Promise.all(optionsPromises);
-};
+                    field.calculatedOptions = options;
+                    resolve();
+                });
+            });
+        };
+
+    _.each(modelConfig.fields, function(field) {
+        if (field.options && typeof field.options === 'function') {
+            optionsPromises.push(calculate(field));
+        }
+
+        if (field._nestedSchema && field._nestedSchema.fields) {
+            optionsPromises.push(calcOptions(field._nestedSchema));
+        }
+    });
+
+    return Promise.all(optionsPromises);
+}
 
 module.exports = calcOptions;
