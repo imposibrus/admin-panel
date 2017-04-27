@@ -35,9 +35,11 @@
 - Create `admin-config.js` and describe your models.
 - Setup:
 
-        var models = require('./models'),
+        var express = require('express'),
+            models = require('./models'),
             adminConfig = require('./admin-config.js'),
             adminPanel = require('admin-panel')({
+              express: express,
               models: models,
               adminConfig: adminConfig,
               storagePath: path.join(__dirname, '../..', 'public/storage')

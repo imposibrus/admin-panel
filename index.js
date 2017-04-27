@@ -1,24 +1,24 @@
 
-var express = require('express'),
-    router = express.Router(),
-    _ = require('lodash'),
+var _ = require('lodash'),
     humanize = require('humanize'),
     adminRouter = require('./routes'),
     loginCallback = require('./controllers/loginCallback');
 
 module.exports = function(options) {
-  options.loginCallback = options.loginCallback || loginCallback(options);
+    var router = options.express.Router();
 
-  router.use(function(req, res, next) {
-    res.locals._ = _;
-    res.locals.humanize = humanize;
-    next();
-  });
+    options.loginCallback = options.loginCallback || loginCallback(options);
 
-  router.post('/login', options.loginCallback);
+    router.use(function(req, res, next) {
+        res.locals._ = _;
+        res.locals.humanize = humanize;
+        next();
+    });
 
-  router.use('/', adminRouter(options));
+    router.post('/login', options.loginCallback);
 
-  return router;
+    router.use('/', adminRouter(options));
+
+    return router;
 };
 

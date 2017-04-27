@@ -62,6 +62,7 @@ app.use(function(req, res, next) {
 });
 
 var adminPanel = require('../..')({
+  express: express,
   models: require('./models'),
   adminConfig: require('./admin-config'),
   storagePath: path.join(__dirname, 'public/storage')

@@ -1,71 +1,73 @@
 
 var path = require('path'),
-    express = require('express'),
-    router = express.Router(),
     controllers = require('./controllers'),
     viewsFolder = path.resolve(__dirname, 'views'),
     packageJSON = require('./package.json');
 
 module.exports = function(options) {
-  if(!options.models || !options.adminConfig) {
-    throw new Error('Properties `models` and `adminConfig` is required.');
-  }
+    if (!options.models || !options.adminConfig) {
+        throw new Error('Properties `models` and `adminConfig` is required.');
+    }
 
-  Object.keys(controllers).forEach(function(key) {
-    controllers[key] = controllers[key](options);
-  });
-
-  // TODO: custom views
-
-  router.use('/public', express.static(path.resolve(__dirname, 'public')));
-
-  router.use(function(req, res, next) {
-    res.locals.adminPanel = {
-      version: packageJSON.version
-    };
-    next();
-  });
-
-  router.get('/logout', function(req, res) {
-    req.session.destroy(function() {
-      res.redirect('/');
+    Object.keys(controllers).forEach(function(key) {
+        controllers[key] = controllers[key](options);
     });
-  });
 
-  router.get('/login', function(req, res) {
-    if(!req.session || !req.session.auth) {
-      return res.render(path.join(viewsFolder, 'admin/login'), {session: req.session});
-    }
-    res.redirect('/admin');
-  });
+    // TODO: custom views
 
-  router.use('/', function(req, res, next) {
-    if(!req.session || !req.session.auth) {
-      return res.redirect('/admin/login');
-    } else {
-      next();
-    }
-  });
+    var router = options.express.Router();
 
-  router.get('/', function(req, res) {
-    res.render(path.join(viewsFolder, 'admin/index'), {adminConfig: options.adminConfig});
-  });
+    router.use('/public', options.express.static(path.resolve(__dirname, 'public')));
 
-  router.get('/list/:collection', controllers.listCollection);
+    router.use(function(req, res, next) {
+        res.locals.adminPanel = {
+            version: packageJSON.version
+        };
 
-  router.post('/sort/:collection', controllers.sortCollectionPost);
+        next();
+    });
 
-  router.get('/sort/:collection', controllers.sortCollectionGet);
+    router.get('/logout', function(req, res) {
+        req.session.destroy(function() {
+            res.redirect('/');
+        });
+    });
 
-  router.get('/edit/:collection/:id', controllers.editCollectionIdGet);
+    router.get('/login', function(req, res) {
+        if (!req.session || !req.session.auth) {
+            return res.render(path.join(viewsFolder, 'admin/login'), {session: req.session});
+        }
 
-  router.post('/edit/:collection/:id', controllers.editCollectionIdPost);
+        res.redirect('/admin');
+    });
 
-  router.get('/delete/:collection/:id', controllers.deleteCollectionId);
+    router.use('/', function(req, res, next) {
+        if (!req.session || !req.session.auth) {
+            return res.redirect('/admin/login');
+        } else {
+            next();
+        }
+    });
 
-  router.post('/upload', controllers.upload);
+    router.get('/', function(req, res) {
+        res.render(path.join(viewsFolder, 'admin/index'), {adminConfig: options.adminConfig});
+    });
 
-  router.get('/filesList', controllers.getFilesList);
+    router.get('/list/:collection', controllers.listCollection);
 
-  return router;
+    router.post('/sort/:collection', controllers.sortCollectionPost);
+
+    router.get('/sort/:collection', controllers.sortCollectionGet);
+
+    router.get('/edit/:collection/:id', controllers.editCollectionIdGet);
+
+    router.post('/edit/:collection/:id', controllers.editCollectionIdPost);
+
+    router.get('/delete/:collection/:id', controllers.deleteCollectionId);
+
+    router.post('/upload', controllers.upload);
+
+    router.get('/filesList', controllers.getFilesList);
+
+    return router;
 };
