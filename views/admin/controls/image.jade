@@ -27,7 +27,7 @@ div.form-group
             - var previewName = Object.keys(field.previews)[0];
             if _.isArray(documentValue)
               for image in documentValue
-                - var previews = image.previews || (image.meta ? image.meta.previews : []);
+                - var previews = image && (image.previews || (image.meta ? image.meta.previews : []));
                 if previews && previews[previewName]
                   .item
                     img(src=previews[previewName].url, data-id=image.id)
