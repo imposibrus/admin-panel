@@ -22,6 +22,7 @@ module.exports = function(options) {
 
       return new Promise(function(resolve, reject) {
         var userFolder = '/public/storage/' + req.query.folder,
+            oldFilename = file.name,
             newFilename = file.hash + path.extname(file.name),
             newFilePath = path.join(uploadFolderPath, newFilename),
 
@@ -44,13 +45,15 @@ module.exports = function(options) {
                   previewUrl: path.join(userFolder, previewName),
                   previewPath: path.join(uploadFolderPath, previewName),
                   newFilePath: newFilePath,
-                  previewParams: previewParams
+                  previewParams: previewParams,
+                  name: oldFilename
                 };
 
             return genImagePreviews(options);
           }).then(function(previewsObjects) {
             var resp = {};
 
+            resp[settings.nameField || 'name'] = oldFilename;
             resp[settings.originalField || 'url'] = userUrl;
             resp[settings.pathField || 'path'] = newFilePath;
 
