@@ -10,7 +10,13 @@ var Promise = require('bluebird'),
  * @returns {Promise.<Object>}
  */
 function populateItem(document, modelConfig, models) {
-    if (!document.isNewRecord && (!_.isEmpty(modelConfig.populate) || !_.isEmpty(modelConfig.populateArrays))) {
+    if (!document.isNewRecord && (!_.isEmpty(modelConfig.populate) && !_.isEmpty(modelConfig.populateArrays))) {
+        return populateProperties(modelConfig.populate, document).then(function(document) {
+            return populateArrays(modelConfig.populateArrays, models, document);
+        });
+    } else if(!document.isNewRecord && (_.isEmpty(modelConfig.populate) && !_.isEmpty(modelConfig.populateArrays))) {
+        return populateArrays(modelConfig.populateArrays, models, document);
+    } else if(!document.isNewRecord && (!_.isEmpty(modelConfig.populate) || !_.isEmpty(modelConfig.populateArrays))) {
         return populateProperties(modelConfig.populate, document).then(function(document) {
             return populateArrays(modelConfig.populateArrays, models, document);
         });
