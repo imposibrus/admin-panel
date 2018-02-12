@@ -1,9 +1,19 @@
 
 var path = require('path'),
+    _ = require('lodash'),
     controllers = require('./controllers'),
     viewsFolder = path.resolve(__dirname, 'views'),
     packageJSON = require('./package.json');
 
+/**
+ *
+ * @param {Object} options
+ * @param {Object} options.models
+ * @param {Object} options.adminConfig
+ * @param {Object} options.express
+ * @param {Object} [options.customRoutes]
+ * @return {Object}
+ */
 module.exports = function(options) {
     if (!options.models || !options.adminConfig) {
         throw new Error('Properties `models` and `adminConfig` is required.');
@@ -68,6 +78,18 @@ module.exports = function(options) {
     router.post('/upload', controllers.upload);
 
     router.get('/filesList', controllers.getFilesList);
+
+    if (options.customRoutes && !_.isEmpty(options.customRoutes)) {
+        for (const routePath in options.customRoutes) {
+            if (!Object.prototype.hasOwnProperty.call(options.customRoutes, routePath)) {
+                continue;
+            }
+
+            const route = options.customRoutes[routePath];
+
+            router[route.method](routePath, route.handler);
+        }
+    }
 
     return router;
 };
