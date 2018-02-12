@@ -2,7 +2,7 @@
 nav.navbar.navbar-inverse(role='navigation')
   .container-fluid
     .navbar-header
-      a.navbar-brand(href='/') KIT
+      a.navbar-brand(href='/') Admin-panel
     ul.nav.navbar-nav
       li.dropdown
         a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -12,6 +12,11 @@ nav.navbar.navbar-inverse(role='navigation')
           for collection in adminConfig.collections
             li
               a(href="/admin/list/" + collection.name)= collection.label
+          if adminConfig.menuItems
+            li(role="separator").divider
+            for item in adminConfig.menuItems
+              li
+                a(href=item.href)= item.title
 
     ul.nav.navbar-nav.navbar-right
       li
