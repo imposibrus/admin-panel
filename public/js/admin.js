@@ -358,7 +358,7 @@ var sendFiles = function(files, options, callback) {
     };
   }
 
-  $.ajax(ajaxOptions);
+  $.ajaxQueue(ajaxOptions);
 
   defer.then(function(uploadedFiles) {
     callback(null, uploadedFiles);
