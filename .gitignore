@@ -3,4 +3,5 @@ node_modules
 .idea
 public/bower_components
 public/css/admin.css
+.DS_Store
 
