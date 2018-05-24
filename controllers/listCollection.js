@@ -9,7 +9,8 @@ module.exports = function(options) {
   return function(req, res, next) {
     var collection = req.params.collection,
         modelConfig = _.find(options.adminConfig.collections, {name: collection}),
-        order = [['createdAt', 'DESC']];
+        createdAt =  modelConfig.createdAt || 'DESC',
+        order = [['createdAt', createdAt]];
 
     if(modelConfig.hasSorting) {
       order.unshift(['order', 'ASC']);
