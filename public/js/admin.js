@@ -1,366 +1,444 @@
-
 $.noty.defaults.timeout = 10000;
 
-$(function() {
+$(function () {
 
-  $('.tinymce').tinymce({
-    script_url: '/admin/public/bower_components/tinymce/tinymce.min.js',
-    content_css : ['/admin/public/bower_components/bootstrap/dist/css/bootstrap.css', '/admin/public/bower_components/bootstrap/dist/css/bootstrap-theme.css'],
-    language: "ru",
-    theme: "modern",
-    convert_urls: true,
-    relative_urls: false,
-    document_base_url: '/',
-    custom_undo_redo_levels: 100,
-    valid_elements : "*[*]",
-    height : 300,
-    schema: "html5",
-    plugins: [
-      ["advlist anchor autolink autosave charmap code colorpicker contextmenu"],
-      ["directionality emoticons fullscreen hr image importcss insertdatetime"],
-      ["link lists media nonbreaking pagebreak paste print preview save searchreplace"],
-      ["spellchecker table template textcolor wordcount visualblocks visualchars ibrowser"]
-    ],
-    toolbar1: 'insertfile undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | fontselect fontsizeselect',
-    toolbar2: 'cut copy paste | blockquote removeformat subscript superscript | link image | print preview media | forecolor backcolor emoticons | code'
-  });
+    $('.tinymce').tinymce({
+        script_url: '/admin/public/bower_components/tinymce/tinymce.min.js',
+        content_css: ['/admin/public/bower_components/bootstrap/dist/css/bootstrap.css', '/admin/public/bower_components/bootstrap/dist/css/bootstrap-theme.css'],
+        language: "ru",
+        theme: "modern",
+        convert_urls: true,
+        relative_urls: false,
+        document_base_url: '/',
+        custom_undo_redo_levels: 100,
+        valid_elements: "*[*]",
+        height: 300,
+        schema: "html5",
+        plugins: [
+            ["advlist anchor autolink autosave charmap code colorpicker contextmenu"],
+            ["directionality emoticons fullscreen hr image importcss insertdatetime"],
+            ["link lists media nonbreaking pagebreak paste print preview save searchreplace"],
+            ["spellchecker table template textcolor wordcount visualblocks visualchars ibrowser"]
+        ],
+        toolbar1: 'insertfile undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | fontselect fontsizeselect',
+        toolbar2: 'cut copy paste | blockquote removeformat subscript superscript | link image | print preview media | forecolor backcolor emoticons | code'
+    });
 
-  var dragging = false,
-      dragTimeout;
+    var dragging = false,
+        dragTimeout;
 
-  $('body').on({
-    dragenter: function() {
-      $(this).addClass('dragging');
-      dragging = true;
-    },
-    dragover: function(e) {
-      dragging = true;
-      e.preventDefault();
-    },
-    dragleave: function() {
-      dragging = false;
-      clearTimeout(dragTimeout);
-      dragTimeout = setTimeout(function() {
-        if(!dragging) {
-          $('body').removeClass('dragging');
+    $('body').on({
+        dragenter: function () {
+            $(this).addClass('dragging');
+            dragging = true;
+        },
+        dragover: function (e) {
+            dragging = true;
+            e.preventDefault();
+        },
+        dragleave: function () {
+            dragging = false;
+            clearTimeout(dragTimeout);
+            dragTimeout = setTimeout(function () {
+                if (!dragging) {
+                    $('body').removeClass('dragging');
+                }
+            }, 200);
+        },
+        drop: function (e) {
+            $("body").removeClass('dragging');
+            $('.drop_zone').removeClass('hover');
+            e.preventDefault();
         }
-      }, 200);
-    },
-    drop: function(e) {
-      $("body").removeClass('dragging');
-      $('.drop_zone').removeClass('hover');
-      e.preventDefault();
-    }
-  });
+    });
 
-  $('input[type="file"]').each(function() {
-    var $this = $(this),
-        $text_input = $this.clone(),
-        $previews_list = $this.closest('.upload_btn').siblings('.previews_list'),
-        settings = $this.data('settings');
+    $('input.image_field[type="file"]').each(function () {
+        var $this = $(this),
+            $text_input = $this.clone(),
+            $previews_list = $this.closest('.upload_btn').siblings('.previews_list'),
+            settings = $this.data('settings');
 
-    $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
-        .removeAttr('id')
-        .removeAttr('required')
-        .attr('name', 'file_' + $this.attr('name'))
-        .removeClass('image_field')
-        .attr('value', '');
+        $this.before($text_input.attr('type', 'hidden').removeAttr('data-settings'))
+            .removeAttr('id')
+            .removeAttr('required')
+            .attr('name', 'file_' + $this.attr('name'))
+            .removeClass('image_field')
+            .attr('value', '');
 
-    $this.on('change', function() {
-      var $input = $(this),
-          files = $input[0].files;
+        $this.on('change', function () {
+            var $input = $(this),
+                files = $input[0].files;
 
-      if(!files.length) {
-        return;
-      }
-      if(!$this.is('[multiple]')) {
-        $previews_list.find('.item, .readerPreviewWrp').remove();
-      }
-      for(var i = 0; i < files.length; i++) {
-        var oFReader = new FileReader();
-        oFReader.readAsDataURL(files[i]);
+            if (!files.length) {
+                return;
+            }
+            if (!$this.is('[multiple]')) {
+                $previews_list.find('.item, .readerPreviewWrp').remove();
+            }
+            for (var i = 0; i < files.length; i++) {
+                var oFReader = new FileReader();
+                oFReader.readAsDataURL(files[i]);
 
-        oFReader.onload = function(oFREvent) {
-          $previews_list.append([
-            '<div class="item readerPreviewWrp">',
-              '<img src="'+ oFREvent.target.result +'" class="readerPreview">',
-              '<div class="del_preview">x</div>',
-            '</div>'
-          ].join(''));
-        };
-      }
+                oFReader.onload = function (oFREvent) {
+                    $previews_list.append([
+                        '<div class="item readerPreviewWrp">',
+                        '<img src="' + oFREvent.target.result + '" class="readerPreview">',
+                        '<div class="del_preview">x</div>',
+                        '</div>'
+                    ].join(''));
+                };
+            }
 
-      sendFiles(files, {settings: settings, folder: 'media'}, function(err, data) {
-        if(err) {
-          notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
-          $previews_list.find('.readerPreviewWrp').remove();
-          return;
-        }
+            sendFiles(files, {settings: settings, folder: 'media'}, function (err, data) {
+                if (err) {
+                    notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
+                    $previews_list.find('.readerPreviewWrp').remove();
+                    return;
+                }
 
-        var mediaArr = _.isArray(data.media) ? data.media : [data.media],
-            uploadedIds = _.map(mediaArr, 'id');
+                var mediaArr = _.isArray(data.media) ? data.media : [data.media],
+                    uploadedIds = _.map(mediaArr, 'id');
 
-        if(settings.array) {
-          var oldVal,
-              newVal;
+                if (settings.array) {
+                    var oldVal,
+                        newVal;
 
-          try {
-            oldVal = $text_input.val().split(',');
-          } catch(e) {
-            oldVal = [];
-          }
+                    try {
+                        oldVal = $text_input.val().split(',');
+                    } catch (e) {
+                        oldVal = [];
+                    }
 
-          newVal = _.without(_.compact(oldVal.concat(uploadedIds)), 0, '0');
-          $text_input.val(newVal.join(','));
-        } else {
-          $text_input.val(uploadedIds.join(','));
-        }
+                    newVal = _.without(_.compact(oldVal.concat(uploadedIds)), 0, '0');
+                    $text_input.val(newVal.join(','));
+                } else {
+                    $text_input.val(uploadedIds.join(','));
+                }
 
-        if(settings.previews) {
-          var smallestPreview = function(previews) {
-            return Object.keys(previews).sort()[0];
-          };
+                if (settings.previews) {
+                    var smallestPreview = function (previews) {
+                        return Object.keys(previews).sort()[0];
+                    };
 
-          $previews_list.find('.readerPreviewWrp').remove();
+                    $previews_list.find('.readerPreviewWrp').remove();
 
-          if(!settings.array) {
-            $previews_list.find('.item').remove();
-          }
+                    if (!settings.array) {
+                        $previews_list.find('.item').remove();
+                    }
 
-          if(_.isArray(data.media)) {
-            data.media.forEach(function(media) {
-              $previews_list.append([
-                '<div class="item">',
-                  '<img src="'+ media.meta.previews[smallestPreview(media.meta.previews)].url +'" data-id="'+ media.id +'"/>',
-                  '<div class="del_image">x</div>',
-                '</div>',
-              ''].join(''));
+                    if (_.isArray(data.media)) {
+                        data.media.forEach(function (media) {
+                            $previews_list.append([
+                                '<div class="item">',
+                                '<img src="' + media.meta.previews[smallestPreview(media.meta.previews)].url + '" data-id="' + media.id + '"/>',
+                                '<div class="del_image">x</div>',
+                                '</div>',
+                                ''].join(''));
+                        });
+                    } else {
+                        $previews_list.append([
+                            '<div class="item">',
+                            '<img src="' + data.media.meta.previews[smallestPreview(data.media.meta.previews)].url + '" data-id="' + data.media.id + '"/>',
+                            '<div class="del_image">x</div>',
+                            '</div>',
+                            ''].join(''));
+                    }
+                } else {
+                    $previews_list.find('.readerPreviewWrp').addClass('uploaded');
+                }
             });
-          } else {
-            $previews_list.append([
-              '<div class="item">',
-                '<img src="'+ data.media.meta.previews[smallestPreview(data.media.meta.previews)].url +'" data-id="'+ data.media.id +'"/>',
-                '<div class="del_image">x</div>',
-              '</div>',
-            ''].join(''));
-          }
-        } else {
-          $previews_list.find('.readerPreviewWrp').addClass('uploaded');
-        }
-      });
-    });
-  });
-
-  $(document).on('click', '.readerPreviewWrp .del_preview', function() {
-    var $readerPreviewWrp = $(this).closest('.readerPreviewWrp'),
-        index = $readerPreviewWrp.index(),
-        $previews_list = $readerPreviewWrp.closest('.previews_list'),
-        $input = $previews_list.siblings('.upload_btn').find('.image_field'),
-        inputVal = $input.val().split(',');
-
-    inputVal.splice(index, 1);
-    $input.val(_.compact(inputVal).join(','));
-    $readerPreviewWrp.remove();
-  });
-
-  $(document).on({
-    dragover: function() {
-      $(this).addClass('hover');
-    },
-    dragleave: function() {
-      $(this).removeClass('hover');
-    },
-    drop: function(e) {
-      var $this = $(this);
-      sendFiles(e.originalEvent.dataTransfer.files, $this.find('input[type="file"]').data('settings'), function(err, paths) {
-        if(err) {
-          notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
-          return;
-        }
-
-        $this.find('input[type="text"]').val(paths);
-      });
-      return false;
-    }
-  }, '.drop_zone');
-
-  $(document).on('change', '.form_checkbox', function() {
-    var $this = $(this),
-        $hidden = $this.siblings('.hidden_checkbox');
-
-    $hidden.val($this.is(':checked') ? '1' : '0');
-  });
-
-  $(document).on('click', '.previews_list .del_image', function() {
-    var $this = $(this),
-        $img = $this.siblings('img'),
-        $input = $this.closest('.previews_list').siblings('.upload_btn').find('.image_field'),
-        imageId = $img.data('id'),
-        inputVal = _($input.val().split(',')).map(_.trim).map(function(id) {return parseInt(id, 10);}).value(),
-        newVal = _.reject(inputVal, function(id) {
-          return id == imageId;
         });
-
-    $input.attr('value', newVal);
-    $this.closest('.item').remove();
-  });
-
-  $('.datepicker').datepicker({
-    dateFormat: 'yy-mm-dd',
-    changeMonth: true,
-    changeYear: true,
-    yearRange: '2014:2050',
-    defaultDate: new Date()
-  });
-
-  $('.datetimepicker').datetimepicker({
-    dateFormat: 'yy-mm-dd',
-    timeFormat: 'HH:mm:ss',
-    changeMonth: true,
-    changeYear: true,
-    yearRange: '2014:2050',
-    defaultDate: new Date(),
-    //addSliderAccess: true,
-    //sliderAccessArgs: { touchonly: false }
-  });
-
-  $(document).on('click', '.postlink', function(e) {
-    var $link = $(this);
-    e.preventDefault();
-    $.post($link.attr('href'), $link.data('postdata')).then(function() {
-      if(!$link.data('reload')) {
-        return notySuccess($link.data('successText') || 'Успех');
-      }
-      document.location.reload();
-    }).fail(function() {
-      if(!$link.data('reload')) {
-        return notyError($link.data('failText') || 'Неудача');
-      }
-      document.location.reload();
     });
-  });
 
-  var $defaultInput = '';
+    $(document).on('click', '.readerPreviewWrp .del_preview', function () {
+        var $readerPreviewWrp = $(this).closest('.readerPreviewWrp'),
+            index = $readerPreviewWrp.index(),
+            $previews_list = $readerPreviewWrp.closest('.previews_list'),
+            $input = $previews_list.siblings('.upload_btn').find('.image_field'),
+            inputVal = $input.val().split(',');
 
-  $(document).on('click', '.add_new_input', function() {
-    var $inputs_list = $(this).siblings('.inputs_list');
+        inputVal.splice(index, 1);
+        $input.val(_.compact(inputVal).join(','));
+        $readerPreviewWrp.remove();
+    });
 
-    if($defaultInput.length) {
-      $defaultInput = prepareClonedInput($defaultInput);
-      $inputs_list.append($defaultInput.clone(true));
-      return;
-    }
-    var $lastInput = $inputs_list.find('.input:last');
+    $(document).on({
+        dragover: function () {
+            $(this).addClass('hover');
+        },
+        dragleave: function () {
+            $(this).removeClass('hover');
+        },
+        drop: function (e) {
+            var $this = $(this);
+            sendFiles(e.originalEvent.dataTransfer.files, $this.find('input[type="file"]').data('settings'), function (err, paths) {
+                if (err) {
+                    notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
+                    return;
+                }
 
-    $defaultInput = prepareClonedInput($lastInput.clone(true).find('input').val('').end());
-    $inputs_list.append($defaultInput.clone(true));
-  });
+                $this.find('input[type="text"]').val(paths);
+            });
+            return false;
+        }
+    }, '.drop_zone');
 
-  $(document).on('click', '.delete', function() {
-    if(!confirm('Вы уверены?')) {
-      return false;
-    }
-  });
+    $(document).on('change', '.form_checkbox', function () {
+        var $this = $(this),
+            $hidden = $this.siblings('.hidden_checkbox');
 
-  $(document).on('submit', '.admin_form', function() {
-    var $upload_btn = $(this).find('.upload_btn');
-    if($upload_btn.is('.required')) {
-      var uploadIds = $upload_btn.find('.image_field').val().split(',').map(function(id) {
-        return parseInt(id.trim(), 10);
-      }).filter(function(id) {
-        return id > 0;
-      });
+        $hidden.val($this.is(':checked') ? '1' : '0');
+    });
 
-      if(!uploadIds.length) {
-        notyError('Загрузите как минимум одно изображение');
-        return false;
-      }
-    }
-  });
+    $(document).on('click', '.previews_list .del_image', function () {
+        var $this = $(this),
+            $img = $this.siblings('img'),
+            $input = $this.closest('.previews_list').siblings('.upload_btn').find('.image_field'),
+            imageId = $img.data('id'),
+            inputVal = _($input.val().split(',')).map(_.trim).map(function (id) {
+                return parseInt(id, 10);
+            }).value(),
+            newVal = _.reject(inputVal, function (id) {
+                return id == imageId;
+            });
 
+        $input.attr('value', newVal);
+        $this.closest('.item').remove();
+    });
+
+    $('.datepicker').datepicker({
+        dateFormat: 'yy-mm-dd',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '2014:2050',
+        defaultDate: new Date()
+    });
+
+    $('.datetimepicker').datetimepicker({
+        dateFormat: 'yy-mm-dd',
+        timeFormat: 'HH:mm:ss',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '2014:2050',
+        defaultDate: new Date(),
+        //addSliderAccess: true,
+        //sliderAccessArgs: { touchonly: false }
+    });
+
+    $(document).on('click', '.postlink', function (e) {
+        var $link = $(this);
+        e.preventDefault();
+        $.post($link.attr('href'), $link.data('postdata')).then(function () {
+            if (!$link.data('reload')) {
+                return notySuccess($link.data('successText') || 'Успех');
+            }
+            document.location.reload();
+        }).fail(function () {
+            if (!$link.data('reload')) {
+                return notyError($link.data('failText') || 'Неудача');
+            }
+            document.location.reload();
+        });
+    });
+
+    var $defaultInput = '';
+
+    $(document).on('click', '.add_new_input', function () {
+        var $inputs_list = $(this).siblings('.inputs_list');
+
+        if ($defaultInput.length) {
+            $defaultInput = prepareClonedInput($defaultInput);
+            $inputs_list.append($defaultInput.clone(true));
+            return;
+        }
+        var $lastInput = $inputs_list.find('.input:last');
+
+        $defaultInput = prepareClonedInput($lastInput.clone(true).find('input').val('').end());
+        $inputs_list.append($defaultInput.clone(true));
+    });
+
+    $(document).on('click', '.delete', function () {
+        if (!confirm('Вы уверены?')) {
+            return false;
+        }
+    });
+
+    $(document).on('submit', '.admin_form', function () {
+        var $upload_btn = $(this).find('.upload_btn');
+        if ($upload_btn.is('.required')) {
+            var uploadIds = $upload_btn.find('.image_field').val().split(',').map(function (id) {
+                return parseInt(id.trim(), 10);
+            }).filter(function (id) {
+                return id > 0;
+            });
+
+            if (!uploadIds.length) {
+                notyError('Загрузите как минимум одно изображение');
+                return false;
+            }
+        }
+    });
 });
 
-var prepareClonedInput = function($input) {
-  return $input.find('input')
-      .attr('name', $input.find('input').attr('name').replace(/(.[^\[]*)\[([0-9+])\]/, function(matched, name, num) {
-        return name + '[' + (~~num + 1) + ']';
-      }))
-      .val('')
-      .end();
+var prepareClonedInput = function ($input) {
+    return $input.find('input')
+        .attr('name', $input.find('input').attr('name').replace(/(.[^\[]*)\[([0-9+])\]/, function (matched, name, num) {
+            return name + '[' + (~~num + 1) + ']';
+        }))
+        .val('')
+        .end();
 };
 
-var sendFiles = function(files, options, callback) {
-  if(!callback && typeof options === 'function') {
-    callback = options;
-    options = {};
-  }
-
-  if(typeof callback !== 'function') {
-    return false;
-  }
-
-  var collection = $('.admin_form').data('collection'),
-      filesArray = Array.prototype.slice.call(files),
-      formData = new FormData(),
-      defer = $.Deferred(),
-      urlQuery = {
-        folder: options.folder || collection,
-        settings: options.settings
-      },
-      url = '/admin/upload?' + $.param(urlQuery);
-
-  filesArray.forEach(function(file, index) {
-    formData.append('file_' + index, file);
-  });
-
-  if(options.name) {
-    formData.append('name', options.name);
-  }
-
-  var ajaxOptions = {
-    url: url,
-    data: formData,
-    processData: false,
-    contentType: false,
-    cache: false,
-    type: 'POST',
-    success: function (data) {
-      if(data.status === 200 && data.files) {
-        if(_.isArray(data.files) && data.files.length > 1) {
-          defer.resolve({files: data.files, media: data.media});
-        } else {
-          defer.resolve({files: data.files[0], media: data.media[0]});
-        }
-      } else {
-        defer.reject(data);
-      }
-    },
-    error: function(jQxhr) {
-      defer.reject(jQxhr.responseJSON || jQxhr.responseText);
+var sendFiles = function (files, options, callback) {
+    if (!callback && typeof options === 'function') {
+        callback = options;
+        options = {};
     }
-  };
 
-  if(options.progress) {
-    options.progress.progress({percent: 0});
+    if (typeof callback !== 'function') {
+        return false;
+    }
 
-    ajaxOptions.xhr = function() {
-      var xhr = new window.XMLHttpRequest();
+    var collection = $('.admin_form').data('collection'),
+        filesArray = Array.prototype.slice.call(files),
+        formData = new FormData(),
+        defer = $.Deferred(),
+        urlQuery = {
+            folder: options.folder || collection,
+            settings: options.settings
+        },
+        url = '/admin/upload?' + $.param(urlQuery);
 
-      xhr.upload.addEventListener("progress", function(evt) {
-        if(evt.lengthComputable) {
-          var percent = parseInt((evt.loaded / evt.total) * 100);
+    filesArray.forEach(function (file, index) {
+        formData.append('file_' + index, file);
+    });
 
-          options.progress.progress({percent: percent});
+    if (options.name) {
+        formData.append('name', options.name);
+    }
+
+    var ajaxOptions = {
+        url: url,
+        data: formData,
+        processData: false,
+        contentType: false,
+        cache: false,
+        type: 'POST',
+        success: function (data) {
+            if (data.status === 200 && data.files) {
+                if (_.isArray(data.files) && data.files.length > 1) {
+                    defer.resolve({files: data.files, media: data.media});
+                } else {
+                    defer.resolve({files: data.files[0], media: data.media[0]});
+                }
+            } else {
+                defer.reject(data);
+            }
+        },
+        error: function (jQxhr) {
+            defer.reject(jQxhr.responseJSON || jQxhr.responseText);
         }
-      }, false);
-
-      return xhr;
     };
-  }
 
-  $.ajax(ajaxOptions);
+    if (options.progress) {
+        options.progress.progress({percent: 0});
 
-  defer.then(function(uploadedFiles) {
-    callback(null, uploadedFiles);
-  }).fail(callback);
+        ajaxOptions.xhr = function () {
+            var xhr = new window.XMLHttpRequest();
+
+            xhr.upload.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var percent = parseInt((evt.loaded / evt.total) * 100);
+
+                    options.progress.progress({percent: percent});
+                }
+            }, false);
+
+            return xhr;
+        };
+    }
+
+    $.ajaxQueue(ajaxOptions);
+
+    defer.then(function (uploadedFiles) {
+        callback(null, uploadedFiles);
+    }).fail(callback);
 };
+
+document.addEventListener("DOMContentLoaded", function () {
+    let uploadResult = document.querySelector('.upload-result');
+    let uploadCropp = document.getElementById('upload-cropp'),
+        fileName,
+        croppie,
+        viewportSize = 200,
+        imageMinSize = 300;
+    if (uploadCropp) {
+
+        let elementUpload = document.getElementById('upload');
+        elementUpload.addEventListener('change', function () {
+
+            if (this.files && this.files[0]) {
+                let file = this.files[0];
+
+                fileName = file.name;
+
+                let reader = new FileReader();
+                reader.addEventListener('load', e => {
+                    uploadCropp.classList.add('ready');
+
+                    if (!croppie) {
+                        croppie = new Croppie(uploadCropp, {
+                            viewport: {
+                                width: viewportSize,
+                                height: viewportSize,
+                                type: 'circle',
+                            },
+                            boundary: {
+                                width: imageMinSize,
+                                height: imageMinSize
+                            },
+                            enableExif: true
+                        });
+
+                    }
+                    uploadResult.style.display = '';
+                    croppie
+                        .bind({url: e.target.result})
+                        .then(() => {
+                            croppie.setZoom(0);
+                        });
+                });
+
+                reader.readAsDataURL(file);
+
+            }
+            else {
+                console.log("Sorry - you're browser doesn't support the FileReader API");
+            }
+        });
+
+        uploadResult.addEventListener('click', e => {
+
+            e.preventDefault();
+
+            Promise.all([croppie.result('base64'), croppie.result('blob')])
+                .then(([base64, blob]) => {
+
+                    let img = document.querySelector('img.cropp-prev');
+                    img.src = base64;
+
+                    let file = new File([blob], fileName + '.png', {type: blob.type});
+
+                    let settings = JSON.parse(elementUpload.dataset.settings);
+
+                    sendFiles([file], {settings: settings, folder: 'media'}, function (err, data) {
+                        if (err) {
+                            notyError(err.message || (err.err && err.err.message) || 'Ошибка при загрузке!');
+                            return;
+                        }
+                        document.querySelector('.cropp-photoId').value = data.media.id;
+                    })
+                });
+        });
+    }
+});
