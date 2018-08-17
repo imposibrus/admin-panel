@@ -65,6 +65,10 @@ $(function () {
             .removeClass('image_field')
             .attr('value', '');
 
+        if ($text_input.val() !== $text_input.attr('value')) {
+            $text_input.val($text_input.attr('value'));
+        }
+
         $this.on('change', function () {
             var $input = $(this),
                 files = $input[0].files;
